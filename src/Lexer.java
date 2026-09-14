@@ -204,7 +204,12 @@ public class Lexer {
             char c = peekChar();
             if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
                 takeForward();
-            } else {
+            } else if (c == '/' && peekNextChar() == '/') {
+                while (!isEOF() && peekChar() != '\n') {
+                    takeForward();
+                }
+            }
+            else {
                 break;
             }
         }
