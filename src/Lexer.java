@@ -146,18 +146,29 @@ public class Lexer {
 
         String lexeme = sb.toString();
 
-        if (isReal) {
-            double value = Double.parseDouble(lexeme);
-            return new Token(TokenType.REAL_LITERAL, lexeme, startLine, startColumn, value);
-        } else {
-            int value = Integer.parseInt(lexeme);
-            return new Token(TokenType.INTEGER_LITERAL, lexeme, startLine, startColumn, value);
+        try {
+
+            if (isReal) {
+                double value = Double.parseDouble(lexeme);
+                return new Token(TokenType.REAL_LITERAL, lexeme, startLine, startColumn, value);
+            } else {
+                int value = Integer.parseInt(lexeme);
+                return new Token(TokenType.INTEGER_LITERAL, lexeme, startLine, startColumn, value);
+            }
+        } catch (NumberFormatException e) {
+            error("Number too large: '" + lexeme + "'", startLine, startColumn);
+            return null;
         }
     }
 
     private void error(String message) {
         throw new LexerException(
                 "Lexer error at line " + line + ", column " + column + ": " + message);
+    }
+
+    private void error(String message, int errorLine, int errorColumn) {
+        throw new LexerException(
+                "Lexer error at line " + errorLine + ", column " + errorColumn + ": " + message);
     }
 
     private Token makeToken(TokenType type, String lexeme) {
@@ -204,12 +215,11 @@ public class Lexer {
             char c = peekChar();
             if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
                 takeForward();
-            } else if (c == '/' && peekNextChar() == '/') {
+            } else if (c == '#') {
                 while (!isEOF() && peekChar() != '\n') {
                     takeForward();
                 }
-            }
-            else {
+            } else {
                 break;
             }
         }
