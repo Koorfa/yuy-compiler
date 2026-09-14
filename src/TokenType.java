@@ -27,7 +27,6 @@ public enum TokenType {
     ELSE,
     PRINT,
     ROUTINE,
-    RETURN,
     BREAK,
     CONTINUE,
     AND,

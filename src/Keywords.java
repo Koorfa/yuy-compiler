@@ -35,7 +35,6 @@ public class Keywords {
         keywords.put("print", TokenType.PRINT);
 
         keywords.put("routine", TokenType.ROUTINE);
-        keywords.put("return", TokenType.RETURN);
 
         keywords.put("and", TokenType.AND);
         keywords.put("or", TokenType.OR);
