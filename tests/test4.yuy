@@ -1,0 +1,12 @@
+var i : integer is 1
+var sum : integer is 0
+
+routine test_while() is
+    while i <= 10 loop
+        if i % 2 = 0 then
+            sum := sum + i
+        end
+        i := i + 1
+    end
+    print sum
+end

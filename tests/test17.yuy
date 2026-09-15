@@ -1,0 +1,17 @@
+type Point is record
+    var x: integer
+    var y: integer
+end
+
+routine create_point(px : integer, py : integer) : Point is
+    var p : Point
+    p.x := px
+    p.y := py
+    => p
+end
+
+routine move_point_by(p: Point, dx : integer, dy : integer): Point is
+    p.x := p.x + dx
+    p.y := p.y + dy
+    => p
+end

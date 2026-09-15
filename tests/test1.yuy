@@ -1,0 +1,42 @@
+var x : integer is 15
+var y : integer is 4
+var w : real is 2.7
+var z : real is 3.0
+
+routine test_arithmetics()
+is
+    var i : integer
+    var r : real
+    i := x + y - 5
+    print i
+    i := x * y
+    print i
+    i := x / y
+    print i
+    i := x % y
+    print i
+    r := w + z
+    print r
+    r := z - w
+    print r
+    r := z * w
+    print r
+    r := z / w
+    print r
+    i := x + w
+    print i
+    i := x * w
+    print i
+    i := y / w
+    print i
+    i := y - w
+    print i
+    r := x + w
+    print r
+    r := x * w
+    print r
+    r := y / w
+    print r
+    r := y - w
+    print r
+end

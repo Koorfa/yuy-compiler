@@ -1,0 +1,21 @@
+routine double_array(arr : array [3] integer) : array [3] integer is
+    var result : array [3] integer
+    result[1] := arr[1] * 2
+    result[2] := arr[2] * 2
+    result[3] := arr[3] * 2
+    => result
+end
+
+routine main() is
+    var original : array [3] integer
+    original[1] := 1
+    original[2] := 2
+    original[3] := 3
+
+    var doubled : array [3] integer
+    doubled := double_array(original)
+
+    print doubled[1]
+    print doubled[2]
+    print doubled[3]
+end

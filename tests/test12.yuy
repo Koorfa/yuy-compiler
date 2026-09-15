@@ -1,0 +1,49 @@
+routine test_for_break() is
+    var sum : integer is 0
+    for i in 1 .. 10 loop
+        if i = 5 then
+            break
+        end
+        sum := sum + i
+    end
+    print sum
+end
+
+routine test_for_continue() is
+    var sum : integer is 0
+    for i in 1 .. 10 loop
+        if i % 2 = 0 then
+            continue
+        end
+        sum := sum + i
+    end
+    print sum
+end
+
+routine test_while_break() is
+    var i : integer is 1
+    var sum : integer is 0
+    while i <= 10 loop
+        if i = 5 then
+            break
+        end
+        sum := sum + i
+        i := i + 1
+    end
+    print sum
+end
+
+routine test_while_continue()
+is
+    var i : integer is 1
+    var sum : integer is 0
+    while i <= 10 loop
+        if i % 2 = 0 then
+            i := i + 1
+            continue
+        end
+        sum := sum + i
+        i := i + 1
+    end
+    print sum
+end

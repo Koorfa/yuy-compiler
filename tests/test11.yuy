@@ -1,0 +1,11 @@
+routine add(x : integer, y : integer) :
+integer
+=> x + y
+
+routine test_routine() is
+    var result : integer
+
+    result := add(3, 7)
+
+    print result
+end
