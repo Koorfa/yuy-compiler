@@ -1,0 +1,19 @@
+var x: integer is 100
+
+routine demonstrate() is
+    print x
+
+    var x: integer is 200
+    print x
+
+    if true then
+        var x: integer is 300
+        print x
+    end
+
+    print x
+end
+
+print x
+demonstrate()
+print x

@@ -1,0 +1,11 @@
+    type Pair is record
+        var x: integer
+        var y: integer
+    end
+
+    routine start() is
+        var p: Pair
+        p.x := 10
+        p.y := 20
+        print p.x, p.y
+end

@@ -1,0 +1,14 @@
+var a : integer is 5
+var b : real is 2.5
+
+routine main() is
+    var x : real
+    var y : integer
+
+    x := a
+    y := b
+
+    print x
+    print y
+    print true + 1.5 + 2
+end

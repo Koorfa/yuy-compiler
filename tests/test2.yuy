@@ -1,0 +1,40 @@
+var a : boolean is true
+var d : boolean is true
+var b : boolean is false
+var e : boolean is false
+
+routine test_logics() is
+    var c : boolean
+    c := b and e
+    print c
+    c := b and a
+    print c
+    c := d and e
+    print c
+    c := a and d
+    print c
+    c := b or e
+    print c
+    c := b or a
+    print c
+    c := d or e
+    print c
+    c := a or d
+    print c
+    c := b xor e
+    print c
+    c := b xor a
+    print c
+    c := d xor e
+    print c
+    c := a xor d
+    print c
+    c := not a
+    print c
+    c := not b
+    print c
+    c := (a and b) or (not d)
+    print c
+    c := a and (b or d)
+    print c
+end

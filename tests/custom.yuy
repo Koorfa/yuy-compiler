@@ -1,0 +1,3 @@
+routine test() is
+    var 1a : boolean true
+end

@@ -1,0 +1,33 @@
+var x : integer is 7
+var y : integer is 5
+
+routine test_conditional()
+is
+    if x > 3 then
+        print true
+    else
+        print false
+    end
+    if x > 10 then
+        print true
+    else
+        print false
+    end
+
+    if x = 7 then
+        print true
+    end
+    if x > 4 then
+        if y /= 5 then
+            print true
+        else
+            print false
+        end
+    else
+        if y >= 3 then
+            print false
+        else
+            print true
+        end
+    end
+end

@@ -1,0 +1,30 @@
+type Date is record
+    var day : integer
+    var month : integer
+    var year : integer
+end
+
+routine print_date(d : Date) is
+    print d.day, d.month, d.year
+end
+
+type Person is record
+    var birthday: Date
+    var id: integer
+end
+
+routine print_person(p : Person) is
+    print p.id
+    print_date(p.birthday)
+end
+
+routine main() is
+    var bd : Date
+    bd.day := 1
+    bd.month := 1
+    bd.year := 2000
+    var person : Person
+    person.birthday := bd
+    person.id := 1
+    print_person(person)
+end

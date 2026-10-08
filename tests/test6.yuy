@@ -1,0 +1,10 @@
+var sum : integer is 0
+
+routine test_for() is
+    for i in 1 .. 5
+    loop
+        sum := sum + i
+    end
+
+    print sum
+end

@@ -1,0 +1,11 @@
+var i : integer is 10
+var sum : integer is 0
+
+routine test_while_zero_iterations()
+is
+    while i <= 5 loop
+        sum := sum + i
+        i := i + 1
+    end
+    print sum
+end

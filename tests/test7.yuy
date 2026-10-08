@@ -1,0 +1,9 @@
+routine test_reverse_for() is
+    var result : integer is 0
+
+    for i in 5 .. 1 reverse loop
+        result := result * 10 + i
+    end
+
+    print result
+end
