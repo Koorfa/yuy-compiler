@@ -6,11 +6,10 @@ public class RecordType extends UserType {
     public RecordType(List<VariableDeclaration> members) { this.members = members; }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("RecordType");
+    public void print(String indent) {
+        System.out.println(indent + "RecordType");
         for (VariableDeclaration member : members) {
-            member.printTree(indent + 1);
+            member.print(indent + "  ");
         }
     }
 }

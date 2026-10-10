@@ -10,11 +10,10 @@ public class Program extends ASTNode {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("Program");
+    public void print(String indent) {
+        System.out.println(indent + "Program");
         for (Declaration decl : declarations) {
-            decl.printTree(indent + 1);
+            decl.print(indent + "  ");
         }
     }
 }

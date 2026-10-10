@@ -8,11 +8,9 @@ public class TypeDeclaration extends SimpleDeclaration {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("TypeDeclaration: " + name);
-        printIndent(indent + 1);
-        System.out.println("Type:");
-        type.printTree(indent + 2);
+    public void print(String indent) {
+        System.out.println(indent + "TypeDeclaration: " + name);
+        System.out.println(indent + "  Type:");
+        type.print(indent + "    ");
     }
 }

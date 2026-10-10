@@ -1,4 +1,7 @@
 // Тело процедуры/функции (Body)
+
+import java.util.List;
+
 public class Body extends ASTNode {
     public List<SimpleDeclaration> declarations;
     public List<Statement> statements;
@@ -9,12 +12,13 @@ public class Body extends ASTNode {
     }
 
     @Override
-    public void printTree(int indent) {
+    public void print(String indent) {
+        // Body just prints its contents without adding its own label
         for (SimpleDeclaration decl : declarations) {
-            decl.printTree(indent);
+            decl.print(indent);
         }
         for (Statement stmt : statements) {
-            stmt.printTree(indent);
+            stmt.print(indent);
         }
     }
 }

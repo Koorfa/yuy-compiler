@@ -5,8 +5,7 @@ public class PrimitiveType extends Type {
     public PrimitiveType(String typeName) { this.typeName = typeName; }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("PrimitiveType: " + typeName);
+    public void print(String indent) {
+        System.out.println(indent + "PrimitiveType: " + typeName);
     }
 }

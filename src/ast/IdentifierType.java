@@ -5,8 +5,7 @@ public class IdentifierType extends Type {
     public IdentifierType(String name) { this.name = name; }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("IdentifierType: " + name);
+    public void print(String indent) {
+        System.out.println(indent + "IdentifierType: " + name);
     }
 }

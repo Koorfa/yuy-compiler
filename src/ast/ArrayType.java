@@ -8,16 +8,13 @@ public class ArrayType extends UserType {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("ArrayType");
+    public void print(String indent) {
+        System.out.println(indent + "ArrayType");
         if (size != null) {
-            printIndent(indent + 1);
-            System.out.println("Size:");
-            size.printTree(indent + 2);
+            System.out.println(indent + "  Size:");
+            size.print(indent + "    ");
         }
-        printIndent(indent + 1);
-        System.out.println("Element Type:");
-        elementType.printTree(indent + 2);
+        System.out.println(indent + "  Element Type:");
+        elementType.print(indent + "    ");
     }
 }

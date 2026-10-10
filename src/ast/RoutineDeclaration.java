@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class RoutineDeclaration extends Declaration {
     public String name;
     public List<ParameterDeclaration> parameters;
@@ -14,26 +16,22 @@ public class RoutineDeclaration extends Declaration {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("RoutineDeclaration: " + name);
+    public void print(String indent) {
+        System.out.println(indent + "RoutineDeclaration: " + name);
         if (returnType != null) {
-            printIndent(indent + 1);
-            System.out.println("Return Type:");
-            returnType.printTree(indent + 2);
+            System.out.println(indent + "  Return Type:");
+            returnType.print(indent + "    ");
         }
         for (ParameterDeclaration p : parameters) {
-            p.printTree(indent + 1);
+            p.print(indent + "  ");
         }
         if (body != null) {
-            printIndent(indent + 1);
-            System.out.println("Body:");
-            body.printTree(indent + 2);
+            System.out.println(indent + "  Body:");
+            body.print(indent + "    ");
         }
         if (expressionBody != null) {
-            printIndent(indent + 1);
-            System.out.println("Expression Body:");
-            expressionBody.printTree(indent + 2);
+            System.out.println(indent + "  Expression Body:");
+            expressionBody.print(indent + "    ");
         }
     }
 }

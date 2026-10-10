@@ -10,18 +10,15 @@ public class VariableDeclaration extends SimpleDeclaration {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("VariableDeclaration: " + name);
+    public void print(String indent) {
+        System.out.println(indent + "VariableDeclaration: " + name);
         if (type != null) {
-            printIndent(indent + 1);
-            System.out.println("Type:");
-            type.printTree(indent + 2);
+            System.out.println(indent + "  Type:");
+            type.print(indent + "    ");
         }
         if (initializer != null) {
-            printIndent(indent + 1);
-            System.out.println("Initializer:");
-            initializer.printTree(indent + 2);
+            System.out.println(indent + "  Initializer:");
+            initializer.print(indent + "    ");
         }
     }
 }

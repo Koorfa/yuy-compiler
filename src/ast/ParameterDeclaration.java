@@ -8,11 +8,9 @@ public class ParameterDeclaration extends Declaration {
     }
 
     @Override
-    public void printTree(int indent) {
-        printIndent(indent);
-        System.out.println("ParameterDeclaration: " + name);
-        printIndent(indent + 1);
-        System.out.println("Type:");
-        type.printTree(indent + 2);
+    public void print(String indent) {
+        System.out.println(indent + "ParameterDeclaration: " + name);
+        System.out.println(indent + "  Type:");
+        type.print(indent + "    ");
     }
 }
