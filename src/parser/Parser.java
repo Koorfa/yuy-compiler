@@ -333,7 +333,11 @@ public class Parser {
             body = parseBody();
             consume(TokenType.END);
         } else if (match(TokenType.ARROW)) {
-            expressionBody = parseExpression();
+            Expression expr = parseExpression();
+            ReturnStatement ret = new ReturnStatement(expr);
+            List<ASTNode> nodes = new ArrayList<>();
+            nodes.add(ret);
+            body = new Body(nodes);
         }
 
         return new RoutineDeclaration(header.name, header.parameters,
@@ -389,18 +393,19 @@ public class Parser {
     }
 
     public Body parseBody() {
-        List<SimpleDeclaration> declarations = new ArrayList<>();
-        List<Statement> statements = new ArrayList<>();
+        List<ASTNode> nodes = new ArrayList<>();
 
-        while (!check(TokenType.END) && !check(TokenType.EOF)) {
+        while (!check(TokenType.END) && !check(TokenType.ELSE) && !check(TokenType.EOF)) {
             if (check(TokenType.VAR) || check(TokenType.TYPE)) {
-                declarations.add(parseSimpleDeclaration());
+                nodes.add(parseSimpleDeclaration());
+            } else if (check(TokenType.ARROW)) {
+                nodes.add(parseReturnStatement());
             } else {
-                statements.add(parseStatement());
+                nodes.add(parseStatement());
             }
             skipSeparators();
         }
-        return new Body(declarations, statements);
+        return new Body(nodes);
     }
 
     public Type parseType() {
@@ -440,6 +445,7 @@ public class Parser {
         List<VariableDeclaration> members = new ArrayList<>();
 
         while (!check(TokenType.END) && !check(TokenType.EOF)) {
+            consume(TokenType.VAR);
             members.add(parseVariableDeclaration());
             skipSeparators();
         }
@@ -454,7 +460,103 @@ public class Parser {
     }
 
     public Statement parseStatement() {
-        throw new UnsupportedOperationException("67");
+        if (check(TokenType.IF)) return parseIfStatement();
+        if (check(TokenType.WHILE)) return parsWhileLoop();
+        if (check(TokenType.FOR)) return parseForLoop();
+        if (check(TokenType.PRINT)) return parsePrintStatement();
+        if (check(TokenType.BREAK)) return parseBreakStatement();
+        if (check(TokenType.CONTINUE)) return parseContinueStatement();
+        if (check(TokenType.IDENTIFIER)) return parseAssignment();
+        throw error("Exprected statement");
     }
 
+    public IfStatement parseIfStatement() {
+        consume(TokenType.IF);
+        Expression condition = parseExpression();
+        consume(TokenType.THEN);
+        Body thenBody = parseBody();
+        Body elseBody = null;
+        if (match(TokenType.ELSE)) {
+            elseBody = parseBody();
+        }
+        consume(TokenType.END);
+        return new IfStatement(condition, thenBody, elseBody);
+    }
+
+    public WhileLoop parsWhileLoop() {
+        consume(TokenType.WHILE);
+        Expression condition = parseExpression();
+        consume(TokenType.LOOP);
+        Body body = parseBody();
+        consume(TokenType.END);
+        return new WhileLoop(condition, body);
+    }
+
+    public ForLoop parseForLoop() {
+        consume(TokenType.FOR);
+        String variable = consume(TokenType.IDENTIFIER).getLexeme();
+        consume(TokenType.IN);
+        Expression start = parseExpression();
+        Expression end = null;
+        if (match(TokenType.RANGE)) {
+            end = parseExpression();
+        }
+        boolean reverse = match(TokenType.REVERSE);
+        consume(TokenType.LOOP);
+        Body body = parseBody();
+        consume(TokenType.END);
+        return new ForLoop(variable, start, end, reverse, body);
+    }
+
+    public PrintStatement parsePrintStatement() {
+        consume(TokenType.PRINT);
+        List<Expression> expressions = new ArrayList<>();
+        expressions.add(parseExpression());
+
+        while (match(TokenType.COMMA)) {
+            expressions.add(parseExpression());
+        }
+        return new PrintStatement(expressions);
+    }
+
+    public BreakStatement parseBreakStatement() {
+        consume(TokenType.BREAK);
+        return new BreakStatement();
+    }
+
+    public ContinueStatement parseContinueStatement() {
+        consume(TokenType.CONTINUE);
+        return new ContinueStatement();
+    }
+
+    public Statement parseAssignment() {
+        if (peekNext().getType() == TokenType.LEFT_PAREN) {
+            return parseRoutineCallStatement();
+        }
+
+        ModifiablePrimary target = parseModifiablePrimary();
+        consume(TokenType.ASSIGN);
+        Expression value = parseExpression();
+        return new Assignment(target, value);
+    }
+
+    public RoutineCallStatement parseRoutineCallStatement() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        consume(TokenType.LEFT_PAREN);
+        List<Expression> args = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            args.add(parseExpression());
+            while (match(TokenType.COMMA)) {
+                args.add(parseExpression());
+            }
+        }
+        consume(TokenType.RIGHT_PAREN);
+        return new RoutineCallStatement(name, args);
+    }
+
+    public ReturnStatement parseReturnStatement() {
+        consume(TokenType.ARROW);
+        Expression value = parseExpression();
+        return new ReturnStatement(value);
+    }
 }
