@@ -267,6 +267,194 @@ public class Parser {
             );
         }
 
-
-
+    public Program parseProgram() {
+        List<Declaration> declarations = new ArrayList<>();
+        while (!check(TokenType.EOF)) {
+            declarations.add(parseDeclaration());
+            skipSeparators();
+        }
+        return new Program(declarations);
     }
+
+    public Declaration parseDeclaration() {
+        if (check(TokenType.VAR) || check(TokenType.TYPE)) {
+            return parseSimpleDeclaration();
+        } else if (check(TokenType.ROUTINE)) {
+            return parseRoutineDeclaration();
+        } else {
+            throw error("Expected 'var', 'type', or 'routine'");
+        }
+    }
+
+    public SimpleDeclaration parseSimpleDeclaration() {
+        if (match(TokenType.VAR)) {
+            return parseVariableDeclaration();
+        } else if (match(TokenType.TYPE)) {
+            return parseTypeDeclaration();
+        }
+        throw error("Expected 'var' or 'type'");
+    }
+
+    public VariableDeclaration parseVariableDeclaration() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        Type type = null;
+        Expression initializer = null;
+
+        if (match(TokenType.COLON)) {
+            type = parseType();
+        }
+
+        if (match(TokenType.IS)) {
+            initializer = parseExpression();
+        }
+
+        if (type == null && initializer == null) {
+            throw error("Variable must have either a type or an initializer");
+        }
+
+        return new VariableDeclaration(name, type, initializer);
+    }
+
+    public TypeDeclaration parseTypeDeclaration() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        consume(TokenType.IS);
+        Type type = parseType();
+        return new TypeDeclaration(name, type);
+    }
+
+    public RoutineDeclaration parseRoutineDeclaration() {
+        consume(TokenType.ROUTINE);
+        RoutineHeader header = parseRoutineHeader();
+
+        Body body = null;
+        Expression expressionBody = null;
+
+        if (match(TokenType.IS)) {
+            body = parseBody();
+            consume(TokenType.END);
+        } else if (match(TokenType.ARROW)) {
+            expressionBody = parseExpression();
+        }
+
+        return new RoutineDeclaration(header.name, header.parameters,
+                                    header.returnType, body, expressionBody);
+    }
+
+    public static class RoutineHeader {
+        public String name;
+        public List<ParameterDeclaration> parameters;
+        public Type returnType;
+
+        public RoutineHeader(String name, List<ParameterDeclaration> parameters, Type returnType) {
+            this.name = name;
+            this.parameters = parameters;
+            this.returnType = returnType;
+        }
+    }
+
+    public RoutineHeader parseRoutineHeader() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        consume(TokenType.LEFT_PAREN);
+        List<ParameterDeclaration> parameters = parseParameters();
+        consume(TokenType.RIGHT_PAREN);
+
+        Type returnType = null;
+        if (match(TokenType.COLON)) {
+            returnType = parseType();
+        }
+
+        return new RoutineHeader(name, parameters, returnType);
+    }
+
+    public Body parseRoutineBody() {
+        return parseBody();
+    }
+
+    public List<ParameterDeclaration> parseParameters() {
+        List<ParameterDeclaration> params = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            params.add(parseParameterDeclaration());
+            while (match(TokenType.COMMA)) {
+                params.add(parseParameterDeclaration());
+            }
+        }
+        return params;
+    }
+
+    public ParameterDeclaration parseParameterDeclaration() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        consume(TokenType.COLON);
+        Type type = parseType();
+        return new ParameterDeclaration(name, type);
+    }
+
+    public Body parseBody() {
+        List<SimpleDeclaration> declarations = new ArrayList<>();
+        List<Statement> statements = new ArrayList<>();
+
+        while (!check(TokenType.END) && !check(TokenType.EOF)) {
+            if (check(TokenType.VAR) || check(TokenType.TYPE)) {
+                declarations.add(parseSimpleDeclaration());
+            } else {
+                statements.add(parseStatement());
+            }
+            skipSeparators();
+        }
+        return new Body(declarations, statements);
+    }
+
+    public Type parseType() {
+        if (check(TokenType.INTEGER) || check(TokenType.REAL) || check(TokenType.BOOLEAN)) {
+            return parsePrimitiveType();
+        } else if (check(TokenType.ARRAY)) {
+            return parseArrayType();
+        } else if (check(TokenType.RECORD)) {
+            return parseRecordType();
+        } else if (check(TokenType.IDENTIFIER)) {
+            return parseIdentifierType();
+        }
+        throw error("Expected type (integer, real, boolean, array, record, or identifier)");
+    }
+
+    public PrimitiveType parsePrimitiveType() {
+        String typeName = currentToken.getLexeme();
+        consume(currentToken.getType());
+        return new PrimitiveType(typeName);
+    }
+
+    public ArrayType parseArrayType() {
+        consume(TokenType.ARRAY);
+        Expression size = null;
+
+        if (match(TokenType.LEFT_BRACKET)) {
+            size = parseExpression();
+            consume(TokenType.RIGHT_BRACKET);
+        }
+
+        Type elementType = parseType();
+        return new ArrayType(size, elementType);
+    }
+
+    public RecordType parseRecordType() {
+        consume(TokenType.RECORD);
+        List<VariableDeclaration> members = new ArrayList<>();
+
+        while (!check(TokenType.END) && !check(TokenType.EOF)) {
+            members.add(parseVariableDeclaration());
+            skipSeparators();
+        }
+
+        consume(TokenType.END);
+        return new RecordType(members);
+    }
+
+    public IdentifierType parseIdentifierType() {
+        String name = consume(TokenType.IDENTIFIER).getLexeme();
+        return new IdentifierType(name);
+    }
+
+    public Statement parseStatement() {
+        throw new UnsupportedOperationException("67");
+    }
+
+}
