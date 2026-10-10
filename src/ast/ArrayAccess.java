@@ -1,3 +1,5 @@
+package ast;
+
 public class ArrayAccess extends ModifiablePrimary {
 
     private final ModifiablePrimary array;

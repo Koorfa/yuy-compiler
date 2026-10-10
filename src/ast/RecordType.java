@@ -1,3 +1,5 @@
+package ast;
+
 import java.util.List;
 
 public class RecordType extends UserType {

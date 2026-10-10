@@ -1,3 +1,5 @@
+package ast;
+
 public class FieldAccess extends ModifiablePrimary {
 
     private final ModifiablePrimary target;

@@ -1,3 +1,5 @@
+package ast;
+
 // Тело процедуры/функции (Body)
 
 import java.util.List;

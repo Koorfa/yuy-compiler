@@ -1,3 +1,5 @@
+package ast;
+
 public class VariableDeclaration extends SimpleDeclaration {
     public String name;
     public Type type;         // Может быть null, если тип выводится из инициализатора

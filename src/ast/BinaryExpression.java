@@ -1,3 +1,7 @@
+package ast;
+
+import lexer.TokenType;
+
 public class BinaryExpression extends Expression {
 
     private final Expression left;

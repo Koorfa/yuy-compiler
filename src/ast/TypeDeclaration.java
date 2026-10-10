@@ -1,3 +1,5 @@
+package ast;
+
 public class TypeDeclaration extends SimpleDeclaration {
     public String name;
     public Type type;

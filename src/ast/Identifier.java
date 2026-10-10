@@ -1,3 +1,5 @@
+package ast;
+
 public class Identifier extends ModifiablePrimary {
 
     private final String name;

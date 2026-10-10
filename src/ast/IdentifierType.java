@@ -1,3 +1,5 @@
+package ast;
+
 
 public class IdentifierType extends Type {
     public String name;

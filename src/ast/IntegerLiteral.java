@@ -1,3 +1,5 @@
+package ast;
+
 public class IntegerLiteral extends Primary {
 
     private final int value;

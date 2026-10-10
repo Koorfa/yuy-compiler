@@ -1,3 +1,5 @@
+package ast;
+
 public class BooleanLiteral extends Primary {
 
     private final boolean value;

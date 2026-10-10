@@ -1,3 +1,5 @@
+package ast;
+
 public class RealLiteral extends Primary {
 
     private final double value;

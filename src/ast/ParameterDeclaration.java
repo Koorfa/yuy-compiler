@@ -1,3 +1,5 @@
+package ast;
+
 public class ParameterDeclaration extends Declaration {
     public String name;
     public Type type;

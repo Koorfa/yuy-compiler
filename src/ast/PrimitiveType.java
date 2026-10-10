@@ -1,3 +1,5 @@
+package ast;
+
 
 public class PrimitiveType extends Type {
     public String typeName; // "integer", "real", "boolean"

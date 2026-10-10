@@ -1,3 +1,7 @@
+package ast;
+
+import lexer.TokenType;
+
 public class UnaryExpression extends Expression {
 
     private final TokenType operator;

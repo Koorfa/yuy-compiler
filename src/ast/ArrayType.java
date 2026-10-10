@@ -1,3 +1,5 @@
+package ast;
+
 public class ArrayType extends UserType {
     public Expression size; // Может быть null, если размер не указан (sizeless)
     public Type elementType;
