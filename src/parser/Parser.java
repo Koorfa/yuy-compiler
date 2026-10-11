@@ -1,6 +1,10 @@
 package parser;
 
 import ast.*;
+import ast.declarations.*;
+import ast.expressions.*;
+import ast.statements.*;
+import ast.types.*;
 import java.util.ArrayList;
 import java.util.List;
 import lexer.Token;

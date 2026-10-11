@@ -1,8 +1,9 @@
 package parser;
 
+import ast.expressions.BinaryExpression;
+import ast.expressions.Expression;
+import ast.expressions.IntegerLiteral;
 import java.util.List;
-
-import ast.*;
 import lexer.*;
 
 public class ParserTest {

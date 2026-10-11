@@ -2,6 +2,7 @@ package ast;
 
 // Корень дерева
 
+import ast.declarations.Declaration;
 import java.util.List;
 
 public class Program extends ASTNode {
