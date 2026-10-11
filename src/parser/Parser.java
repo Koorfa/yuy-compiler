@@ -327,7 +327,6 @@ public class Parser {
         RoutineHeader header = parseRoutineHeader();
 
         Body body = null;
-        Expression expressionBody = null;
 
         if (match(TokenType.IS)) {
             body = parseBody();
@@ -341,7 +340,7 @@ public class Parser {
         }
 
         return new RoutineDeclaration(header.name, header.parameters,
-                                    header.returnType, body, expressionBody);
+                                    header.returnType, body);
     }
 
     public static class RoutineHeader {
