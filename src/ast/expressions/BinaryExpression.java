@@ -8,6 +8,10 @@ public class BinaryExpression extends Expression {
     private final TokenType operator;
     private final Expression right;
 
+    public Expression getLeft() {return left;}
+    public TokenType getOperator() {return operator;}
+    public Expression getRight() {return right;}
+
     public BinaryExpression(Expression left, TokenType operator, Expression right) {
         this.left = left;
         this.operator = operator;

@@ -5,6 +5,9 @@ public class ArrayAccess extends ModifiablePrimary {
     private final ModifiablePrimary array;
     private final Expression index;
 
+    public ModifiablePrimary getArray() {return array;}
+    public Expression getIndex() {return index;}
+
     public ArrayAccess(ModifiablePrimary array, Expression index) {
         this.array = array;
         this.index = index;
