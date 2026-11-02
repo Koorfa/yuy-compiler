@@ -8,6 +8,10 @@ public class RealLiteral extends Primary {
         this.value = value;
     }
 
+    public double getValue() {
+        return value;
+    }
+
     @Override
     public void print(String indent) {
         System.out.println(indent + "RealLiteral: " + value + annotations());

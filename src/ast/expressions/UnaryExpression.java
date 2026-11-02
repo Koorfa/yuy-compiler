@@ -15,6 +15,14 @@ public class UnaryExpression extends Expression {
         this.operand = operand;
     }
 
+    public TokenType getOperator() {
+        return operator;
+    }
+
+    public Expression getOperand() {
+        return operand;
+    }
+
     @Override
     public void print(String indent) {
         System.out.println(indent + "UnaryExpression: " + operator + annotations());
