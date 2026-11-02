@@ -20,7 +20,8 @@ public class RoutineCallExpression extends Primary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "RoutineCallExpression: " + name);
+        String symInfo = (resolvedSymbol != null) ? " [symbol=" + resolvedSymbol.getName() + "]" : "";
+        System.out.println(indent + "RoutineCallExpression: " + name + annotations() + symInfo);
 
         for (Expression argument : arguments) {
             argument.print(indent + "    ");

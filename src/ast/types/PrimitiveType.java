@@ -10,6 +10,11 @@ public class PrimitiveType extends Type {
     public PrimitiveType(String typeName) { this.typeName = typeName; }
 
     @Override
+    public String toString() {
+        return typeName;
+    }
+
+    @Override
     public void print(String indent) {
         System.out.println(indent + "PrimitiveType: " + typeName);
     }

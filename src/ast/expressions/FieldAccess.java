@@ -19,7 +19,8 @@ public class FieldAccess extends ModifiablePrimary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "FieldAccess: " + fieldName);
+        String fieldInfo = (resolvedFieldDeclaration != null) ? " [resolved]" : "";
+        System.out.println(indent + "FieldAccess: " + fieldName + annotations() + fieldInfo);
         target.print(indent + "    ");
     }
 }

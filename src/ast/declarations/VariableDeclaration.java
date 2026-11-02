@@ -7,6 +7,7 @@ public class VariableDeclaration extends SimpleDeclaration {
     public String name;
     public Type type;         // Может быть null, если тип выводится из инициализатора
     public Expression initializer; // Может быть null
+    public int scopeLevel;
 
     public VariableDeclaration(String name, Type type, Expression initializer) {
         this.name = name;
@@ -16,7 +17,7 @@ public class VariableDeclaration extends SimpleDeclaration {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "VariableDeclaration: " + name);
+        System.out.println(indent + "VariableDeclaration: " + name + " [scope=" + scopeLevel + "]");
         if (type != null) {
             System.out.println(indent + "  Type:");
             type.print(indent + "    ");

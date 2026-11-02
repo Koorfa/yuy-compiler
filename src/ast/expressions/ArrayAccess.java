@@ -15,7 +15,7 @@ public class ArrayAccess extends ModifiablePrimary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "ArrayAccess");
+        System.out.println(indent + "ArrayAccess" + annotations());
         array.print(indent + "    ");
         index.print(indent + "    ");
     }

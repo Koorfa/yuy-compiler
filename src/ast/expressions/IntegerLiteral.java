@@ -12,6 +12,6 @@ public class IntegerLiteral extends Primary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "IntegerLiteral: " + value);
+        System.out.println(indent + "IntegerLiteral: " + value + annotations());
     }
 }

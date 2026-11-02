@@ -16,6 +16,7 @@ public class Identifier extends ModifiablePrimary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "Identifier: " + name);
+        String symInfo = (resolvedSymbol != null) ? " [symbol=" + resolvedSymbol.getName() + "]" : "";
+        System.out.println(indent + "Identifier: " + name + annotations() + symInfo);
     }
 }

@@ -13,4 +13,14 @@ public abstract class Expression extends ASTNode{
     @Override
     public abstract void print(String indent);
 
+    protected String annotations() {
+        StringBuilder sb = new StringBuilder();
+        if (resolvedType != null) {
+            sb.append(" [type=").append(resolvedType).append("]");
+        }
+        if (conversion != null && conversion != Conversion.NONE) {
+            sb.append(" [conversion=").append(conversion).append("]");
+        }
+        return sb.toString();
+    }
 }

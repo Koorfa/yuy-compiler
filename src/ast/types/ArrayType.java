@@ -13,6 +13,11 @@ public class ArrayType extends UserType {
     }
 
     @Override
+    public String toString() {
+        return "array";
+    }
+
+    @Override
     public void print(String indent) {
         System.out.println(indent + "ArrayType");
         if (size != null) {

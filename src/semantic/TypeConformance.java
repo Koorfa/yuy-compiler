@@ -1,5 +1,6 @@
 package semantic;
 
+import ast.declarations.VariableDeclaration;
 import ast.expressions.Expression;
 import ast.expressions.IntegerLiteral;
 import ast.expressions.UnaryExpression;
@@ -7,7 +8,6 @@ import ast.types.*;
 import java.util.HashSet;
 import java.util.Set;
 import lexer.TokenType;
-
 
 public class TypeConformance {
 
@@ -38,6 +38,31 @@ public class TypeConformance {
             return checkPrimitiveConformance(targetPrim, sourcePrim);
         }
 
+        if (targetType instanceof ArrayType targetArr && sourceType instanceof ArrayType sourceArr) {
+            if (targetArr.size == null && sourceArr.size == null) {
+                return checkConformance(targetArr.elementType, sourceArr.elementType, symbolTable);
+            }
+            if (targetArr.size != null && sourceArr.size != null && evaluateSize(targetArr, symbolTable) == evaluateSize(sourceArr, symbolTable)) {
+                return checkConformance(targetArr.elementType, sourceArr.elementType, symbolTable);
+            }
+            throw new SemanticException("Array size mismatch: " + getTypeName(targetType) + " and " + getTypeName(sourceType));
+        }
+
+        if (targetType instanceof RecordType targetRec && sourceType instanceof RecordType sourceRec) {
+             if (targetRec.members.size() != sourceRec.members.size()) {
+                throw new SemanticException("Record member count mismatch: " + getTypeName(targetType) + " and " + getTypeName(sourceType));
+            }
+            for (int i = 0; i < targetRec.members.size(); i++) {
+                VariableDeclaration t = targetRec.members.get(i);
+                VariableDeclaration s = sourceRec.members.get(i);
+                if (!t.name.equals(s.name)) {
+                    throw new SemanticException("Record field name mismatch: '" + t.name + "' and '" + s.name + "'");
+                }
+                checkConformance(t.type, s.type, symbolTable);
+            }
+            return Conversion.NONE;
+        }
+
         if (targetType == sourceType) {
             return Conversion.NONE;
         }
@@ -52,8 +77,7 @@ public class TypeConformance {
             Expression expression,
             Type targetType,
             Type sourceType,
-            SymbolTable symbolTable
-    ) {
+            SymbolTable symbolTable) {
         if (expression == null) {
             throw new SemanticException("Cannot check conformance for a null expression");
         }
@@ -63,8 +87,7 @@ public class TypeConformance {
             Integer literalValue = getSignedIntegerLiteralValue(expression);
             if (literalValue != null && literalValue != 0 && literalValue != 1) {
                 throw new SemanticException(
-                        "Integer literal must be 0 or 1 to be converted to boolean, got " + literalValue
-                );
+                        "Integer literal must be 0 or 1 to be converted to boolean, got " + literalValue);
             }
         }
         return conversion;
@@ -98,8 +121,7 @@ public class TypeConformance {
     private static Type resolveType(
             Type type,
             SymbolTable symbolTable,
-            Set<String> visitedAliases
-    ) {
+            Set<String> visitedAliases) {
         if (!(type instanceof IdentifierType identifierType)) {
             return type;
         }
@@ -116,9 +138,9 @@ public class TypeConformance {
     }
 
     private static Conversion checkPrimitiveConformance(
-            PrimitiveType target, 
+            PrimitiveType target,
             PrimitiveType source) {
-        
+
         String t = target.typeName.toLowerCase();
         String s = source.typeName.toLowerCase();
 
@@ -128,24 +150,30 @@ public class TypeConformance {
 
         return switch (t) {
             case "integer" -> {
-                if (s.equals("real")) yield Conversion.REAL_TO_INT;
-                if (s.equals("boolean")) yield Conversion.BOOL_TO_INT;
+                if (s.equals("real"))
+                    yield Conversion.REAL_TO_INT;
+                if (s.equals("boolean"))
+                    yield Conversion.BOOL_TO_INT;
                 throw new SemanticException("Cannot convert " + s + " to " + t);
             }
             case "real" -> {
-                if (s.equals("integer")) yield Conversion.INT_TO_REAL;
-                if (s.equals("boolean")) yield Conversion.BOOL_TO_REAL;
+                if (s.equals("integer"))
+                    yield Conversion.INT_TO_REAL;
+                if (s.equals("boolean"))
+                    yield Conversion.BOOL_TO_REAL;
                 throw new SemanticException("Cannot convert " + s + " to " + t);
             }
             case "boolean" -> {
-                if (s.equals("integer")) yield Conversion.INT_TO_BOOL;
-                if (s.equals("real")) throw new SemanticException("Illegal assignment: cannot convert real to boolean");
+                if (s.equals("integer"))
+                    yield Conversion.INT_TO_BOOL;
+                if (s.equals("real"))
+                    throw new SemanticException("Illegal assignment: cannot convert real to boolean");
                 throw new SemanticException("Cannot convert " + s + " to " + t);
             }
             default -> throw new SemanticException("Cannot convert " + s + " to " + t);
         };
     }
-    
+
     public static boolean conformsToBoolean(Type type) {
         if (type instanceof PrimitiveType primitiveType) {
             String name = primitiveType.typeName.toLowerCase();
@@ -172,14 +200,25 @@ public class TypeConformance {
 
     private static String getTypeName(Type type) {
         if (type == null) {
-            return "null"; 
+            return "null";
         }
-        
-        if (type instanceof PrimitiveType p) return p.typeName;
-        if (type instanceof IdentifierType id) return id.name;
-        if (type instanceof ArrayType) return "array";
-        if (type instanceof RecordType) return "record";
-        
-        return type.getClass().getSimpleName(); 
+
+        if (type instanceof PrimitiveType p)
+            return p.typeName;
+        if (type instanceof IdentifierType id)
+            return id.name;
+        if (type instanceof ArrayType)
+            return "array";
+        if (type instanceof RecordType)
+            return "record";
+
+        return type.getClass().getSimpleName();
+    }
+
+    private static int evaluateSize(ArrayType arrayType, SymbolTable symbolTable) {
+        if (arrayType.size instanceof IntegerLiteral lit) {
+            return lit.getValue();
+        }
+        throw new SemanticException("Array size must be an integer literal in this context");
     }
 }

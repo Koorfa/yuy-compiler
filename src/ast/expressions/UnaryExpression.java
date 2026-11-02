@@ -17,7 +17,7 @@ public class UnaryExpression extends Expression {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "UnaryExpression: " + operator);
+        System.out.println(indent + "UnaryExpression: " + operator + annotations());
         operand.print(indent + "    ");
     }
 }

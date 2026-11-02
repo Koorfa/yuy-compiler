@@ -20,7 +20,7 @@ public class BinaryExpression extends Expression {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "BinaryExpression: " + operator);
+        System.out.println(indent + "BinaryExpression: " + operator + annotations());
         left.print(indent + "    ");
         right.print(indent + "    ");
     }
