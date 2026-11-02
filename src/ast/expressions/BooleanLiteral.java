@@ -8,6 +8,10 @@ public class BooleanLiteral extends Primary {
         this.value = value;
     }
 
+    public boolean getValue() {
+        return value;
+    }
+
     @Override
     public void print(String indent) {
         System.out.println(indent + "BooleanLiteral: " + value);

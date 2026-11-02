@@ -8,6 +8,10 @@ public class IntegerLiteral extends Primary {
         this.value = value;
     }
 
+    public int getValue() {
+        return value;
+    }
+
     @Override
     public void print(String indent) {
         System.out.println(indent + "IntegerLiteral: " + value);

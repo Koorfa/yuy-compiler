@@ -14,6 +14,18 @@ public class BinaryExpression extends Expression {
         this.right = right;
     }
 
+    public Expression getLeft() {
+        return left;
+    }
+
+    public TokenType getOperator() {
+        return operator;
+    }
+
+    public Expression getRight() {
+        return right;
+    }
+
     @Override
     public void print(String indent) {
         System.out.println(indent + "BinaryExpression: " + operator);
