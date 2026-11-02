@@ -16,6 +16,8 @@ import semantic.FirstPassAnalyzer;
 import semantic.SemanticException;
 import semantic.StatementsAnalyzer;
 
+import optimizer.UnreachableCodeOptimizer;
+
 public class Main {
     public static void main(String[] args) {
         try {
@@ -43,6 +45,9 @@ public class Main {
 
             StatementsAnalyzer pass2 = new StatementsAnalyzer(pass1.getSymbolTable());
             pass2.analyze(program);
+
+            UnreachableCodeOptimizer optimizer = new UnreachableCodeOptimizer();
+            optimizer.optimize(program);
 
             program.print("");
         } catch (LexerException e) {

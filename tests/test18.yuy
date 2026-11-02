@@ -1,0 +1,5 @@
+routine foo() : integer is
+    => 42
+    print 100
+    print 200
+end
