@@ -10,6 +10,6 @@ public class BooleanLiteral extends Primary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "BooleanLiteral: " + value);
+        System.out.println(indent + "BooleanLiteral: " + value + annotations());
     }
 }

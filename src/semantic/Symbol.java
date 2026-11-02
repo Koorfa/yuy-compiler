@@ -8,10 +8,10 @@ import java.util.List;
 
 public class Symbol {
     private final String name;
-    private final Type type;
+    private Type type;
     private final SymbolCategory category;
-    private final List<Type> parameterTypes;
-    private final Declaration declaration;
+    private List<Type> parameterTypes;
+    private Declaration declaration;
 
     public Symbol(
             String name,
@@ -37,6 +37,10 @@ public class Symbol {
         return type;
     }
 
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     public SymbolCategory getCategory() {
         return category;
     }
@@ -45,7 +49,17 @@ public class Symbol {
         return parameterTypes;
     }
 
+    public void setParameterTypes(List<Type> parameterTypes) {
+        this.parameterTypes = parameterTypes == null
+                ? Collections.emptyList()
+                : parameterTypes;
+    }
+
     public Declaration getDeclaration() {
         return declaration;
+    }
+
+    public void setDeclaration(Declaration declaration) {
+        this.declaration = declaration;
     }
 }

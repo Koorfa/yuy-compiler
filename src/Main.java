@@ -12,6 +12,10 @@ import lexer.Token;
 import parser.Parser;
 import parser.ParseException;
 
+import semantic.FirstPassAnalyzer;
+import semantic.SemanticException;
+import semantic.StatementsAnalyzer;
+
 public class Main {
     public static void main(String[] args) {
         try {
@@ -34,11 +38,19 @@ public class Main {
             Parser parser = new Parser(tokens);
             Program program = parser.parseProgram();
 
+            FirstPassAnalyzer pass1 = new FirstPassAnalyzer();
+            pass1.analyze(program);
+
+            StatementsAnalyzer pass2 = new StatementsAnalyzer(pass1.getSymbolTable());
+            pass2.analyze(program);
+
             program.print("");
         } catch (LexerException e) {
             System.out.println("Lexer error: " + e.getMessage());
         } catch (ParseException e) {
             System.out.println("Parser error: " + e.getMessage());
+        } catch (SemanticException e) {
+            System.out.println("Semantic error: " + e.getMessage());
         }
 
         System.out.println();

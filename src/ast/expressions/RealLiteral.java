@@ -10,6 +10,6 @@ public class RealLiteral extends Primary {
 
     @Override
     public void print(String indent) {
-        System.out.println(indent + "RealLiteral: " + value);
+        System.out.println(indent + "RealLiteral: " + value + annotations());
     }
 }

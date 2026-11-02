@@ -5,10 +5,16 @@ import ast.expressions.Expression;
 public class ArrayType extends UserType {
     public Expression size; // Может быть null, если размер не указан (sizeless)
     public Type elementType;
+    public Integer resolvedSize;
 
     public ArrayType(Expression size, Type elementType) {
         this.size = size;
         this.elementType = elementType;
+    }
+
+    @Override
+    public String toString() {
+        return "array";
     }
 
     @Override
