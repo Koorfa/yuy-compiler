@@ -17,6 +17,7 @@ import semantic.SemanticException;
 import semantic.StatementsAnalyzer;
 
 import optimizer.ConstantExpressionOptimizer;
+import optimizer.UnreachableCodeOptimizer;
 
 public class Main {
     public static void main(String[] args) {
@@ -46,8 +47,10 @@ public class Main {
             StatementsAnalyzer pass2 = new StatementsAnalyzer(pass1.getSymbolTable());
             pass2.analyze(program);
 
-            ConstantExpressionOptimizer optimizer = new ConstantExpressionOptimizer();
-            optimizer.optimize(program);
+            ConstantExpressionOptimizer constOptimizer = new ConstantExpressionOptimizer();
+            constOptimizer.optimize(program);
+            UnreachableCodeOptimizer unreachableOptimizer = new UnreachableCodeOptimizer();
+            unreachableOptimizer.optimize(program);
 
             program.print("");
         } catch (LexerException e) {
