@@ -1,0 +1,14 @@
+var x : integer is 1 + 2
+
+routine test_opt_const() is
+    var a : integer is 10 * 2
+    var b : real is 2.5 + 3.7
+
+    if 10 > 5 then
+        print 100 + 23
+    end
+
+    while 1 + 2 = 3 loop
+        print a
+    end
+end

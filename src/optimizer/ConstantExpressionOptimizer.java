@@ -8,10 +8,19 @@ import lexer.TokenType;
 import ast.expressions.BooleanLiteral;
 import ast.expressions.RealLiteral;
 import ast.expressions.UnaryExpression;
-
+import ast.statements.Statement;
+import ast.statements.Assignment;
+import ast.statements.ForLoop;
+import ast.statements.IfStatement;
+import ast.statements.PrintStatement;
+import ast.statements.ReturnStatement;
+import ast.statements.WhileLoop;
+import ast.ASTNode;
+import ast.Body;
 import ast.Program;
 import ast.declarations.Declaration;
 import ast.declarations.VariableDeclaration;
+import ast.declarations.RoutineDeclaration;
 
 public class ConstantExpressionOptimizer {
 
@@ -23,7 +32,57 @@ public class ConstantExpressionOptimizer {
 
                 variable.initializer =
                         optimizeExpression(variable.initializer);
+            } else if (declaration instanceof RoutineDeclaration routine) {
+                if (routine.body != null) {
+                    optimizeBody(routine.body);
+                }
             }
+        }
+    }
+
+    public void optimizeBody(Body body) {
+        if (body == null || body.nodes == null) return;
+
+        for (int i = 0; i < body.nodes.size(); i++) {
+            ASTNode node = body.nodes.get(i);
+            if (node instanceof VariableDeclaration var && var.initializer != null) {
+                var.initializer = optimizeExpression(var.initializer);
+            } else if (node instanceof Statement stmt) {
+                optimizeStatement(stmt);
+            }
+        }
+    }
+
+    private void optimizeStatement(Statement stmt) {
+        switch (stmt) {
+            case Assignment assign -> assign.value = optimizeExpression(assign.value);
+            case IfStatement ifStmt -> {
+                ifStmt.condition = optimizeExpression(ifStmt.condition);
+                optimizeBody(ifStmt.thenBody);
+                if (ifStmt.elseBody != null) {
+                    optimizeBody(ifStmt.elseBody);
+                }
+            }
+            case WhileLoop whileLoop -> {
+                whileLoop.condition = optimizeExpression(whileLoop.condition);
+                optimizeBody(whileLoop.body);
+            }
+            case ForLoop forLoop -> {
+                forLoop.start = optimizeExpression(forLoop.start);
+                if (forLoop.end != null) {
+                    forLoop.end = optimizeExpression(forLoop.end);
+                }
+                optimizeBody(forLoop.body);
+            }
+            case PrintStatement printStmt -> {
+                for (int i = 0; i < printStmt.expressions.size(); i++) {
+                    printStmt.expressions.set(i, optimizeExpression(printStmt.expressions.get(i)));
+                }
+            }
+            case ReturnStatement returnStmt -> {
+                returnStmt.value = optimizeExpression(returnStmt.value);
+            }
+            default -> {}
         }
     }
 
