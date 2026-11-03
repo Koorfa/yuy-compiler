@@ -2,6 +2,8 @@ package semantic;
 
 import ast.Program;
 import ast.declarations.Declaration;
+import ast.declarations.ParameterDeclaration;
+import ast.declarations.RoutineDeclaration;
 import ast.declarations.TypeDeclaration;
 import ast.declarations.VariableDeclaration;
 import ast.types.ArrayType;
@@ -9,19 +11,15 @@ import ast.types.IdentifierType;
 import ast.types.PrimitiveType;
 import ast.types.RecordType;
 import ast.types.Type;
-
-import ast.declarations.ParameterDeclaration;
-import ast.declarations.RoutineDeclaration;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirstPassAnalyzer {
+public class DeclarationsAnalyzer {
 
     private final SymbolTable symbolTable;
     private ExpressionAnalyzer expressionAnalyzer;
 
-    public FirstPassAnalyzer() {
+    public DeclarationsAnalyzer() {
         this.symbolTable = new SymbolTable();
     }
 

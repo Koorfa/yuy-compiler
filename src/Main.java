@@ -1,23 +1,19 @@
 import ast.Program;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import lexer.Lexer;
 import lexer.LexerException;
 import lexer.Token;
-import parser.Parser;
-import parser.ParseException;
-
-import semantic.FirstPassAnalyzer;
-import semantic.SemanticException;
-import semantic.StatementsAnalyzer;
-
 import optimizer.ConstantExpressionOptimizer;
 import optimizer.UnreachableCodeOptimizer;
+import parser.ParseException;
+import parser.Parser;
+import semantic.DeclarationsAnalyzer;
+import semantic.SemanticException;
+import semantic.StatementsAnalyzer;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,7 +37,7 @@ public class Main {
             Parser parser = new Parser(tokens);
             Program program = parser.parseProgram();
 
-            FirstPassAnalyzer pass1 = new FirstPassAnalyzer();
+            DeclarationsAnalyzer pass1 = new DeclarationsAnalyzer();
             pass1.analyze(program);
 
             StatementsAnalyzer pass2 = new StatementsAnalyzer(pass1.getSymbolTable());
