@@ -5,6 +5,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.IdentityHashMap;
+import semantic.Symbol;
+import semantic.SymbolCategory;
+
 
 
 public final class VariableManager {
@@ -51,6 +55,7 @@ public final class VariableManager {
     }
 
     private final Map<String, Variable> globals = new LinkedHashMap<>();
+    private final Map<Symbol, Variable> variablesBySymbol = new IdentityHashMap<>();
     private final Deque<Map<String, Variable>> localScopes = new ArrayDeque<>();
 
     public Variable declareGlobal(String sourceName, String fieldName, String descriptor) {
@@ -148,6 +153,44 @@ public final class VariableManager {
 
         throw new CodeGenException("Variable is not declared: " + name);
     }
+
+
+    /** Links a semantic symbol to its JVM variable. */
+    public void bind(Symbol symbol, Variable variable) {
+        if (symbol == null || variable == null) {
+            throw new CodeGenException("Symbol and variable must not be null");
+        }
+
+        if (symbol.getCategory() != SymbolCategory.VARIABLE) {
+            throw new CodeGenException("Symbol is not a variable: " + symbol.getName());
+        }
+
+        if (!symbol.getName().equals(variable.sourceName())) {
+            throw new CodeGenException("Symbol and variable names do not match");
+        }
+
+        Variable existing = variablesBySymbol.putIfAbsent(symbol, variable);
+
+        if (existing != null && existing != variable) {
+            throw new CodeGenException("Symbol already has a JVM location: " + symbol.getName());
+        }
+    }
+
+    /** Finds the JVM variable corresponding to an exact semantic symbol. */
+    public Variable resolve(Symbol symbol) {
+        if (symbol == null) {
+            throw new CodeGenException("Cannot resolve a null symbol");
+        }
+
+        Variable variable = variablesBySymbol.get(symbol);
+
+        if (variable == null) {
+            throw new CodeGenException("No JVM location for symbol: " + symbol.getName());
+        }
+
+        return variable;
+    }
+
 
     public int scopeLevel() {
         return localScopes.size();
