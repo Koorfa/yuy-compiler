@@ -111,30 +111,64 @@ public class ExpressionGenerator {
         context.getStackTracker().push(jasminType.equals("D") ? "D" : "I");
     }
 
-    private void generateComparison(BinaryExpression bin, String intBranch, String refBranch, String dcmp) {
-        String trueLabel = context.getLabelManager().getNewLabel("cmp_true");
-        String endLabel = context.getLabelManager().getNewLabel("cmp_end");
-        
+
+    private void generateComparison(
+            BinaryExpression bin,
+            String intBranch,
+            String refBranch,
+            String dcmp) {
+
+        String trueLabel = context.getLabelManager()
+                .getNewLabel("cmp_true");
+        String endLabel = context.getLabelManager()
+                .getNewLabel("cmp_end");
+
         Type leftType = bin.getLeft().resolvedType;
-        String jasminLeftType = context.getTypeMapper().getJasminType(leftType);
-        
-        if (jasminLeftType.equals("D")) {
+
+        String leftDescriptor = context.getTypeMapper()
+                .getJasminType(leftType);
+        String rightDescriptor = context.getTypeMapper()
+                .getJasminType(bin.getRight().resolvedType);
+
+        boolean realComparison = "D".equals(leftDescriptor)
+                || "D".equals(rightDescriptor);
+
+        if (realComparison) {
             context.getWriter().emit(dcmp);
-            context.getWriter().emit(intBranch + " " + trueLabel);
+
+            String branch = switch (bin.getOperator()) {
+                case EQUAL -> "ifeq";
+                case NOT_EQUAL -> "ifne";
+                case LESS -> "iflt";
+                case LESS_EQUAL -> "ifle";
+                case GREATER -> "ifgt";
+                case GREATER_EQUAL -> "ifge";
+                default -> throw new CodeGenException(
+                        "Unsupported comparison operator: "
+                                + bin.getOperator()
+                );
+            };
+
+            context.getWriter().emit(branch + " " + trueLabel);
+
         } else if (leftType instanceof UserType) {
             context.getWriter().emit(refBranch + " " + trueLabel);
+
         } else {
             context.getWriter().emit(intBranch + " " + trueLabel);
         }
-        
+
         context.getWriter().emit("iconst_0");
         context.getWriter().emit("goto " + endLabel);
+
         context.getWriter().emitLabel(trueLabel);
         context.getWriter().emit("iconst_1");
+
         context.getWriter().emitLabel(endLabel);
-        
+
         popOperandsAndPushResult("I");
     }
+
 
     private void generateUnaryExpression(UnaryExpression un) {
         generate(un.getOperand());
