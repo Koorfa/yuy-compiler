@@ -1,8 +1,16 @@
 package codegen;
 
 public class LabelManager {
-    private int labelCounter = 0;
+    private int nextId;
+
+    public void reset() {
+        nextId = 0;
+    }
+
     public String getNewLabel(String prefix) {
-        return prefix + "_" + (labelCounter++);
+        if (prefix == null || prefix.isEmpty()) {
+            prefix = "label";
+        }
+        return prefix + "_" + nextId++;
     }
 }

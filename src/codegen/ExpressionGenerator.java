@@ -65,7 +65,7 @@ public class ExpressionGenerator {
             // TODO: Ensure VariableManager.loadVariable correctly handles 
             // both local variables (via local variable slots) and global variables 
             // (via static fields) based on the scopeLevel determined in CodeGenPrepPass.
-            context.getVariableManager().loadVariable(symbol.getName());
+            context.getVariableManager().loadVariable(symbol);
             context.getStackTracker().push(context.getTypeMapper().getJasminType(symbol.getType()));
         } else {
             throw new CodeGenException("Identifier is not a variable: " + id.getName());
