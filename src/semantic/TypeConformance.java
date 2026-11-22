@@ -73,23 +73,37 @@ public class TypeConformance {
         );
     }
 
+
     public static Conversion checkExpressionConformance(
             Expression expression,
             Type targetType,
             Type sourceType,
             SymbolTable symbolTable) {
+
         if (expression == null) {
-            throw new SemanticException("Cannot check conformance for a null expression");
+            throw new SemanticException(
+                    "Cannot check conformance for a null expression"
+            );
         }
 
-        Conversion conversion = checkConformance(targetType, sourceType, symbolTable);
+        Conversion conversion = checkConformance(
+                targetType, sourceType, symbolTable
+        );
+
         if (conversion == Conversion.INT_TO_BOOL) {
             Integer literalValue = getSignedIntegerLiteralValue(expression);
-            if (literalValue != null && literalValue != 0 && literalValue != 1) {
+
+            if (literalValue != null
+                    && literalValue != 0
+                    && literalValue != 1) {
                 throw new SemanticException(
-                        "Integer literal must be 0 or 1 to be converted to boolean, got " + literalValue);
+                        "Integer literal must be 0 or 1 to be converted to boolean, got "
+                                + literalValue
+                );
             }
         }
+
+        expression.conversion = conversion;
         return conversion;
     }
 

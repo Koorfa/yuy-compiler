@@ -20,12 +20,15 @@ public class TypeConversionGenerator {
                 context.getWriter().emit("i2d");
                 updateStack("I", "D");
                 break;
-                
+
+
             case REAL_TO_INT:
-                // Spec: "copying with rounding to nearest integer"
-                // Note: JVM 'd2i' truncates towards zero. For strict "round to nearest", 
-                // a more complex sequence (e.g., adding 0.5 conditionally) may be required.
-                context.getWriter().emit("d2i");
+                // Round to the nearest integer instead of truncating.
+                context.getWriter().emit(
+                        "invokestatic java/lang/Math/round(D)J"
+                );
+                context.getWriter().emit("l2i");
+
                 updateStack("D", "I");
                 break;
                 
