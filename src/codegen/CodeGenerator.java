@@ -3,11 +3,15 @@ package codegen;
 
 import ast.Program;
 import semantic.SymbolTable;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public final class CodeGenerator {
+    public static final String OUTPUT_CLASS = "YuyProgram";
 
-    public String generate(Program program, SymbolTable symbols) {
+    public Map<String, String> generate(Program program, SymbolTable symbols) {
         Objects.requireNonNull(program, "program");
         Objects.requireNonNull(symbols, "symbols");
 
@@ -28,7 +32,8 @@ public final class CodeGenerator {
                 writer,
                 new LabelManager(),
                 new StackTracker(),
-                variables
+                variables,
+                mapper
         );
 
         ExpressionGenerator expressions =
@@ -37,16 +42,21 @@ public final class CodeGenerator {
         StatementGenerator statements =
                 new StatementGenerator(context, expressions, prep);
 
-        DeclarationGenerator declarations =
-                new DeclarationGenerator(context, prep, "Main");
+        Map<String, String> artifacts = new LinkedHashMap<>();
+        artifacts.putAll(new RecordClassGenerator(context.getTypeMapper(), symbols).generate(program));
 
-        writer.directive(".class public Main");
+        DeclarationGenerator declarations =
+                new DeclarationGenerator(context, prep, OUTPUT_CLASS);
+
+        writer.directive(".class public " + OUTPUT_CLASS);
         writer.directive(".super java/lang/Object");
 
         declarations.generateGlobalFields(program);
         declarations.generateGlobalInitializer(program, expressions);
         declarations.generateRoutines(program, statements);
 
-        return writer.getCode();
+        artifacts.put(OUTPUT_CLASS + ".j", writer.getCode());
+
+        return artifacts;
     }
 }

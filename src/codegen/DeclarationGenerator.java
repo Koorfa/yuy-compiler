@@ -1,6 +1,8 @@
 
 package codegen;
 
+import ast.ASTNode;
+import ast.Body;
 import ast.Program;
 import ast.declarations.Declaration;
 import ast.declarations.VariableDeclaration;
@@ -11,6 +13,10 @@ import java.util.Objects;
 import ast.declarations.RoutineDeclaration;
 import ast.declarations.ParameterDeclaration;
 import ast.statements.ReturnStatement;
+import ast.statements.ForLoop;
+import ast.statements.IfStatement;
+import ast.statements.WhileLoop;
+import ast.types.Type;
 
 public final class DeclarationGenerator {
     private final CodegenContext context;
@@ -18,21 +24,19 @@ public final class DeclarationGenerator {
     private final String ownerClass;
 
     public DeclarationGenerator(CodegenContext context,
-                                CodeGenPrepPass prep,
-                                String ownerClass) {
+            CodeGenPrepPass prep,
+            String ownerClass) {
         this.context = Objects.requireNonNull(context, "context");
         this.prep = Objects.requireNonNull(prep, "prep");
 
         if (ownerClass == null ||
                 !ownerClass.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
             throw new CodeGenException(
-                    "Invalid generated class name: " + ownerClass
-            );
+                    "Invalid generated class name: " + ownerClass);
         }
 
         this.ownerClass = ownerClass;
     }
-
 
     public void generateGlobalFields(Program program) {
         Objects.requireNonNull(program, "program");
@@ -47,29 +51,18 @@ public final class DeclarationGenerator {
             String descriptor = context.getTypeMapper()
                     .getJasminType(symbol.getType());
 
-            if (!"I".equals(descriptor) && !"D".equals(descriptor)) {
-                throw new CodeGenException(
-                        "Global type not yet implemented for "
-                                + variable.name + ": " + descriptor
-                );
-            }
-
             context.getWriter().directive(
                     ".field public static " + variable.name
-                            + " " + descriptor
-            );
+                            + " " + descriptor);
 
-            VariableManager.Variable location =
-                    context.getVariableManager().declareGlobal(
-                            variable.name,
-                            ownerClass + "/" + variable.name,
-                            descriptor
-                    );
+            VariableManager.Variable location = context.getVariableManager().declareGlobal(
+                    variable.name,
+                    ownerClass + "/" + variable.name,
+                    descriptor);
 
             context.getVariableManager().bind(symbol, location);
         }
     }
-
 
     public void generateGlobalInitializer(
             Program program,
@@ -81,10 +74,13 @@ public final class DeclarationGenerator {
         boolean hasInitializers = false;
 
         for (Declaration declaration : program.declarations) {
-            if (declaration instanceof VariableDeclaration variable
-                    && variable.initializer != null) {
-                hasInitializers = true;
-                break;
+            if (declaration instanceof VariableDeclaration variable) {
+                Type type = prep.symbolFor(variable).getType();
+                if (variable.initializer != null
+                        || ArrayRecordSupport.isAggregate(type, context.getTypeMapper(), context.getSymbolTable())) {
+                    hasInitializers = true;
+                    break;
+                }
             }
         }
 
@@ -105,33 +101,43 @@ public final class DeclarationGenerator {
             }
 
             Symbol symbol = prep.symbolFor(variable);
-
-            String descriptor = context.getTypeMapper()
-                    .getJasminType(symbol.getType());
-
-            if (!"I".equals(descriptor) && !"D".equals(descriptor)) {
-                throw new CodeGenException(
-                        "Global initializer type not supported: "
-                                + variable.name
-                );
+            if (variable.initializer == null
+                    && !ArrayRecordSupport.isAggregate(symbol.getType(), context.getTypeMapper(),
+                            context.getSymbolTable())) {
+                continue;
             }
 
-            expressions.generate(variable.initializer);
+            if (variable.initializer != null) {
+                expressions.generate(variable.initializer);
+            } else {
+                generateArrayOrRecord(symbol.getType());
+            }
 
             context.getVariableManager().storeVariable(symbol);
             stack.pop();
 
             stack.assertDepth(
                     0,
-                    "global initializer of " + variable.name
-            );
+                    "global initializer of " + variable.name);
         }
 
         writer.emit("return");
         writer.endMethod(stack.getMaxDepth(), 0);
     }
 
-
+    private void generateArrayOrRecord(Type type) {
+        String spec = ArrayRecordSupport.spec(type, context.getTypeMapper(), context.getSymbolTable());
+        String descriptor = context.getTypeMapper().getJasminType(type);
+        context.getWriter().emit("ldc \"" + spec + "\"");
+        context.getStackTracker().push("A");
+        context.getWriter().emit("invokestatic YuyRuntime/allocate(Ljava/lang/String;)Ljava/lang/Object;");
+        context.getStackTracker().pop();
+        context.getStackTracker().push("A");
+        String cast = descriptor.startsWith("L") && descriptor.endsWith(";")
+                ? descriptor.substring(1, descriptor.length() - 1)
+                : descriptor;
+        context.getWriter().emit("checkcast " + cast);
+    }
 
     public void generateRoutines(
             Program program,
@@ -147,7 +153,6 @@ public final class DeclarationGenerator {
             }
         }
     }
-
 
     private void generateRoutine(
             RoutineDeclaration routine,
@@ -167,8 +172,7 @@ public final class DeclarationGenerator {
                 .getJasminMethodDescriptor(routine);
 
         writer.beginMethod(
-                "public static " + routine.name + descriptor
-        );
+                "public static " + routine.name + descriptor);
 
         try {
             for (ParameterDeclaration parameter : routine.parameters) {
@@ -179,21 +183,22 @@ public final class DeclarationGenerator {
 
             if (routine.returnType == null) {
                 writer.emit("return");
-            } else if (routine.body.nodes.isEmpty()
-                    || !(routine.body.nodes.get(
-                    routine.body.nodes.size() - 1)
-                    instanceof ReturnStatement)) {
-                throw new CodeGenException(
-                        "Function must end with return: " + routine.name
-                );
+            } else {
+                if (!allPathsReturn(routine.body)) {
+                    throw new CodeGenException(
+                            "Function has no return statement: " + routine.name);
+                }
+                writer.emit("aconst_null");
+                stack.push("A");
+                writer.emit("athrow");
+                stack.pop();
             }
 
             stack.assertDepth(0, "end of routine " + routine.name);
 
             writer.endMethod(
                     stack.getMaxDepth(),
-                    variables.getMaxLocals()
-            );
+                    variables.getMaxLocals());
 
         } finally {
             variables.endRoutine();
@@ -202,5 +207,38 @@ public final class DeclarationGenerator {
         }
     }
 
-}
+    private boolean allPathsReturn(Body body) {
+        if (body == null) {
+            return false;
+        }
 
+        for (ASTNode node : body.nodes) {
+            if (statementReturnsOnAllPaths(node)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean statementReturnsOnAllPaths(ASTNode node) {
+        if (node instanceof ReturnStatement) {
+            return true;
+        }
+
+        if (node instanceof IfStatement conditional) {
+            if (conditional.elseBody == null) {
+                return false;
+            }
+            boolean thenReturns = allPathsReturn(conditional.thenBody);
+            boolean elseReturns = allPathsReturn(conditional.elseBody);
+            return thenReturns && elseReturns;
+        }
+
+        if (node instanceof WhileLoop || node instanceof ForLoop) {
+            return false;
+        }
+
+        return false;
+    }
+}

@@ -62,9 +62,6 @@ public class ExpressionGenerator {
             throw new CodeGenException("Unresolved identifier: " + id.getName());
         }
         if (symbol.getCategory() == SymbolCategory.VARIABLE) {
-            // TODO: Ensure VariableManager.loadVariable correctly handles 
-            // both local variables (via local variable slots) and global variables 
-            // (via static fields) based on the scopeLevel determined in CodeGenPrepPass.
             context.getVariableManager().loadVariable(symbol);
             context.getStackTracker().push(context.getTypeMapper().getJasminType(symbol.getType()));
         } else {
@@ -193,6 +190,15 @@ public class ExpressionGenerator {
     private void generateArrayAccess(ArrayAccess array) {
         generate(array.getArray());
         generate(array.getIndex());
+
+        context.getWriter().emit("iconst_1");
+        context.getStackTracker().push("I");
+
+        context.getWriter().emit("isub");
+
+        context.getStackTracker().pop();
+        context.getStackTracker().pop();
+        context.getStackTracker().push("I");
         
         String jasminElemType = context.getTypeMapper().getJasminType(array.resolvedType);
         if (jasminElemType.equals("I")) {
@@ -211,8 +217,6 @@ public class ExpressionGenerator {
     private void generateFieldAccess(FieldAccess field) {
         generate(field.getTarget());
         
-        // TODO: Ensure getRecordClassName returns the actual generated class name 
-        // so that getfield resolves correctly.
         String ownerClass = context.getTypeMapper().getRecordClassName(field.getTarget().resolvedType);
         String fieldName = field.getFieldName();
         String fieldType = context.getTypeMapper().getJasminType(field.resolvedType);
@@ -237,10 +241,8 @@ public class ExpressionGenerator {
         }
         
         String descriptor = context.getTypeMapper().getJasminMethodDescriptor(routine);
-        
-        // TODO: Replace "Main" with the actual name of the generated output class, 
-        // or ensure all routines are placed in a predictable class structure.
-        String className = "Main"; 
+
+        String className = CodeGenerator.OUTPUT_CLASS;
         
         context.getWriter().emit("invokestatic " + className + "/" + call.getName() + descriptor);
         

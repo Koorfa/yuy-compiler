@@ -7,6 +7,7 @@ import ast.ASTNode;
 import ast.Body;
 import ast.declarations.RoutineDeclaration;
 import ast.declarations.VariableDeclaration;
+import ast.declarations.TypeDeclaration;
 import ast.expressions.*;
 import ast.types.*;
 import semantic.Symbol;
@@ -28,7 +29,6 @@ public final class StatementGenerator {
     private final CodeGenPrepPass prep;
     private final Stack<LoopContext> loops = new Stack<>();
 
-
     public StatementGenerator(
             CodegenContext context,
             ExpressionGenerator expressions,
@@ -38,7 +38,6 @@ public final class StatementGenerator {
         this.expressions = Objects.requireNonNull(expressions, "expressions");
         this.prep = Objects.requireNonNull(prep, "prep");
     }
-
 
     public void generate(Statement statement) {
         switch (statement) {
@@ -53,7 +52,7 @@ public final class StatementGenerator {
             case PrintStatement s -> generatePrint(s);
             case RoutineCallStatement s -> generateRoutineCall(s);
             default -> throw new CodeGenException("Unsupported statement: " + statement.getClass().getName());
-        } 
+        }
     }
 
     public void generateBody(Body body) {
@@ -64,6 +63,8 @@ public final class StatementGenerator {
                 generate(statement);
             } else if (node instanceof VariableDeclaration declaration) {
                 generateLocalDeclaration(declaration);
+            } else if (node instanceof TypeDeclaration declaration) {
+
             } else {
                 throw new CodeGenException("Unsupported body node: " + node.getClass().getName());
             }
@@ -84,7 +85,27 @@ public final class StatementGenerator {
             expressions.generate(declaration.initializer);
             context.getVariableManager().storeVariable(symbol);
             context.getStackTracker().pop();
+        } else if (ArrayRecordSupport.isAggregate(type, context.getTypeMapper(), context.getSymbolTable()))
+        // Type declarations are processed during semantic analysis
+        {
+            emitAggregateAllocation(type);
+            context.getVariableManager().storeVariable(symbol);
+            context.getStackTracker().pop();
         }
+    }
+
+    private void emitAggregateAllocation(Type type) {
+        String spec = ArrayRecordSupport.spec(type, context.getTypeMapper(), context.getSymbolTable());
+        String descriptor = context.getTypeMapper().getJasminType(type);
+        context.getWriter().emit("ldc \"" + spec + "\"");
+        context.getStackTracker().push("A");
+        context.getWriter().emit("invokestatic YuyRuntime/allocate(Ljava/lang/String;)Ljava/lang/Object;");
+        context.getStackTracker().pop();
+        context.getStackTracker().push("A");
+        String cast = descriptor.startsWith("L") && descriptor.endsWith(";")
+                ? descriptor.substring(1, descriptor.length() - 1)
+                : descriptor;
+        context.getWriter().emit("checkcast " + cast);
     }
 
     private void generateAssignment(Assignment assignment) {
@@ -232,7 +253,7 @@ public final class StatementGenerator {
         context.getStackTracker().pop();
 
         context.getWriter().emit(
-                "iload " + (loop.reverse ? endSlot : startSlot));
+                "iload " + startSlot);
         context.getStackTracker().push("I");
 
         context.getVariableManager().storeVariable(loopSymbol);
@@ -244,7 +265,7 @@ public final class StatementGenerator {
         context.getStackTracker().push("I");
 
         context.getWriter().emit(
-                "iload " + (loop.reverse ? startSlot : endSlot));
+                "iload " + endSlot);
         context.getStackTracker().push("I");
 
         context.getWriter().emit(
@@ -468,7 +489,9 @@ public final class StatementGenerator {
         }
 
         String descriptor = context.getTypeMapper().getJasminMethodDescriptor(routine);
-        context.getWriter().emit("invokestatic Main/" + statement.name + descriptor);
+        context.getWriter().emit(
+                "invokestatic " + CodeGenerator.OUTPUT_CLASS
+                        + "/" + statement.name + descriptor);
 
         for (int i = 0; i < statement.arguments.size(); i++) {
             context.getStackTracker().pop();

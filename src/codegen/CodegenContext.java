@@ -29,6 +29,22 @@ public class CodegenContext {
         this.typeMapper = new TypeMapper(symbolTable);
     }
 
+    public CodegenContext(
+        SymbolTable symbolTable,
+        JasminWriter writer,
+        LabelManager labelManager,
+        StackTracker stackTracker,
+        VariableManager variableManager,
+        TypeMapper typeMapper
+    ) {
+        this.symbolTable = symbolTable;
+        this.writer = writer;
+        this.labelManager = labelManager;
+        this.stackTracker = stackTracker;
+        this.variableManager = variableManager;
+        this.typeMapper = typeMapper;
+    }
+
     public String getCurrentRoutineName() { return currentRoutineName; }
     public void setCurrentRoutineName(String currentRoutineName) { this.currentRoutineName = currentRoutineName; }
 

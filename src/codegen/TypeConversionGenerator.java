@@ -38,25 +38,39 @@ public class TypeConversionGenerator {
                 
             case INT_TO_BOOL:
                 // Spec: "if integer is 1, converted to true; if 0, to false; otherwise erroneous"
-                String errorLabel = context.getLabelManager().getNewLabel("int_to_bool_err");
                 String endLabel = context.getLabelManager().getNewLabel("int_to_bool_end");
+                StackTracker tracker = context.getStackTracker();
+                StackTracker.StackState valueState = tracker.snapshot();
                 
                 context.getWriter().emit("dup");
+                tracker.push("I");
                 context.getWriter().emit("iconst_1");
+                tracker.push("I");
                 context.getWriter().emit("if_icmpeq " + endLabel);
+                tracker.pop();
+                tracker.pop();
                 
                 context.getWriter().emit("dup");
+                tracker.push("I");
                 context.getWriter().emit("iconst_0");
+                tracker.push("I");
                 context.getWriter().emit("if_icmpeq " + endLabel);
+                tracker.pop();
+                tracker.pop();
                 
-                // TODO: Ensure this runtime exception aligns with the project's 
-                // overall error handling strategy (e.g., custom exception class or standard JVM throw).
-                context.getWriter().emit("new java/lang/RuntimeException");
+                context.getWriter().emit("new java/lang/IllegalArgumentException");
+                tracker.push("A");
                 context.getWriter().emit("dup");
+                tracker.push("A");
                 context.getWriter().emit("ldc \"Invalid integer to boolean conversion: value must be 0 or 1\"");
-                context.getWriter().emit("invokespecial java/lang/RuntimeException/<init>(Ljava/lang/String;)V");
+                tracker.push("A");
+                context.getWriter().emit("invokespecial java/lang/IllegalArgumentException/<init>(Ljava/lang/String;)V");
+                tracker.pop();
+                tracker.pop();
                 context.getWriter().emit("athrow");
+                tracker.pop();
                 
+                tracker.restore(valueState);
                 context.getWriter().emitLabel(endLabel);
                 break;
                 
