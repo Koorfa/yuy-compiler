@@ -1,11 +1,9 @@
 package codegen;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ast.declarations.RoutineDeclaration;
 import ast.types.*;
-import semantic.Symbol;
+import java.util.HashMap;
+import java.util.Map;
 import semantic.SymbolTable;
 import semantic.TypeConformance;
 
@@ -19,22 +17,22 @@ public class TypeMapper {
 
     public String getJasminType(Type type) {
         if (type == null)
-            return "V";
+            return "V"; // void
         Type resolved = TypeConformance.resolveType(type, symbolTable);
         
         if (resolved instanceof PrimitiveType) {
             String name = ((PrimitiveType) resolved).typeName.toLowerCase();
             if (name.equals("integer"))
-                return "I";
+                return "I"; // int
             if (name.equals("real"))
-                return "D";
+                return "D"; // double
             if (name.equals("boolean"))
-                return "I";
+                return "I"; // int (in jvm boolean uses int)
         }
         if (resolved instanceof ArrayType) {
             ArrayType arr = (ArrayType) resolved;
             String elemType = getJasminType(arr.elementType);
-            return "[" + elemType;
+            return "[" + elemType; // [ stands for array, symbol after is type of elements in array
         }
         if (resolved instanceof RecordType) {
             RecordType record = (RecordType) resolved;
@@ -87,7 +85,7 @@ public class TypeMapper {
 
     public String getJasminReturnType(Type type) {
         if (type == null)
-            return "V";
+            return "V"; // void
         return getJasminType(type);
     }
 }
