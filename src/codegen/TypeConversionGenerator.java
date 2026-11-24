@@ -42,6 +42,8 @@ public class TypeConversionGenerator {
                 StackTracker tracker = context.getStackTracker();
                 StackTracker.StackState valueState = tracker.snapshot();
                 
+                // Check v == 1. On success, jump to endLabel with v still
+                // on the stack (v == 1 == true).
                 context.getWriter().emit("dup");
                 tracker.push("I");
                 context.getWriter().emit("iconst_1");
@@ -50,6 +52,8 @@ public class TypeConversionGenerator {
                 tracker.pop();
                 tracker.pop();
                 
+                // Check v == 0. On success, jump to endLabel with v still
+                // on the stack (v == 0 == false).
                 context.getWriter().emit("dup");
                 tracker.push("I");
                 context.getWriter().emit("iconst_0");
@@ -58,6 +62,9 @@ public class TypeConversionGenerator {
                 tracker.pop();
                 tracker.pop();
                 
+                // Neither 0 nor 1: construct and throw IllegalArgumentException.
+                // Layout for invokespecial: [..., ref, arg] where ref is
+                // the uninitialized 'new' object (as 'this') and arg is the message.
                 context.getWriter().emit("new java/lang/IllegalArgumentException");
                 tracker.push("A");
                 context.getWriter().emit("dup");
@@ -70,6 +77,9 @@ public class TypeConversionGenerator {
                 context.getWriter().emit("athrow");
                 tracker.pop();
                 
+                // Both success paths merge at endLabel with exactly one value
+                // (the original v) on the stack. Restore the tracker to that
+                // shape before emitting the merge label.
                 tracker.restore(valueState);
                 context.getWriter().emitLabel(endLabel);
                 break;

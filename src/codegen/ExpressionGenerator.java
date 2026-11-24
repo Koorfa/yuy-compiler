@@ -174,6 +174,7 @@ public class ExpressionGenerator {
         
         if (op == TokenType.MINUS) {
             if (jasminType.equals("D")) {
+                // 0 - x
                 context.getWriter().emit("dconst_0");
                 context.getWriter().emit("dsub");
             } else {
@@ -182,6 +183,7 @@ public class ExpressionGenerator {
         } else if (op == TokenType.PLUS) {
             // No operation needed
         } else if (op == TokenType.NOT) {
+            // x XOR 1
             context.getWriter().emit("iconst_1");
             context.getWriter().emit("ixor");
         }
