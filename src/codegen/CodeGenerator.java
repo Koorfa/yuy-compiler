@@ -1,12 +1,10 @@
-
 package codegen;
 
 import ast.Program;
-import semantic.SymbolTable;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import semantic.SymbolTable;
 
 public final class CodeGenerator {
     public static final String OUTPUT_CLASS = "YuyProgram";

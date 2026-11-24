@@ -1,22 +1,19 @@
-
 package codegen;
 
 import ast.ASTNode;
 import ast.Body;
 import ast.Program;
 import ast.declarations.Declaration;
-import ast.declarations.VariableDeclaration;
-import semantic.Symbol;
-
-import java.util.Objects;
-
-import ast.declarations.RoutineDeclaration;
 import ast.declarations.ParameterDeclaration;
-import ast.statements.ReturnStatement;
+import ast.declarations.RoutineDeclaration;
+import ast.declarations.VariableDeclaration;
 import ast.statements.ForLoop;
 import ast.statements.IfStatement;
+import ast.statements.ReturnStatement;
 import ast.statements.WhileLoop;
 import ast.types.Type;
+import java.util.Objects;
+import semantic.Symbol;
 
 public final class DeclarationGenerator {
     private final CodegenContext context;

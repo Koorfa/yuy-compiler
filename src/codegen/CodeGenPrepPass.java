@@ -1,4 +1,3 @@
-
 package codegen;
 
 import ast.ASTNode;
@@ -13,16 +12,15 @@ import ast.statements.*;
 import ast.types.ArrayType;
 import ast.types.PrimitiveType;
 import ast.types.Type;
-import semantic.Symbol;
-import semantic.SymbolCategory;
-import semantic.SymbolTable;
-import semantic.TypeConformance;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
+import semantic.Symbol;
+import semantic.SymbolCategory;
+import semantic.SymbolTable;
+import semantic.TypeConformance;
 
 /**
  * Collects semantic symbols for declarations before generating JVM code.
