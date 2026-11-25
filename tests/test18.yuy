@@ -3,3 +3,10 @@ routine foo() : integer is
     print 100
     print 200
 end
+
+routine main() is
+    var p: integer
+    
+    p := foo()
+    print p
+end

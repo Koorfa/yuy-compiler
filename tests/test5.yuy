@@ -10,5 +10,5 @@ routine main() is
 
     print x
     print y
-    print true + 1.5 + 2
+    print 1.5 + 2
 end

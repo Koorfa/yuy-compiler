@@ -54,6 +54,9 @@ public class StatementsAnalyzer {
             for (ASTNode node : routine.body.nodes) {
                 if (node instanceof VariableDeclaration var) {
                     var.scopeLevel = currentScopeLevel;
+                    if (var.type != null) {
+                        validateLocalType(var.type);
+                    }
                     Symbol varSymbol = new Symbol(var.name, var.type, SymbolCategory.VARIABLE, null, var);
                     symbolTable.add(varSymbol);
 
@@ -231,6 +234,10 @@ public class StatementsAnalyzer {
             if (node instanceof VariableDeclaration var) {
                 var.scopeLevel = currentScopeLevel;
 
+                if (var.type != null) {
+                    validateLocalType(var.type);
+                }
+
                 Symbol varSymbol = new Symbol(
                         var.name, var.type, SymbolCategory.VARIABLE, null, var);
                 symbolTable.add(varSymbol);
@@ -244,6 +251,48 @@ public class StatementsAnalyzer {
                 }
             } else if (node instanceof Statement stmt) {
                 checkStatement(stmt);
+            }
+        }
+    }
+
+    private void validateLocalType(Type type) {
+        Type resolved = TypeConformance.resolveType(type, symbolTable);
+
+        if (resolved instanceof PrimitiveType) {
+            return;
+        }
+
+        if (resolved instanceof ArrayType arrayType) {
+            if (arrayType.size == null) {
+                throw new SemanticException(
+                        "Local array must have a specified size");
+            }
+
+            Type sizeType = expressionAnalyzer.analyze(arrayType.size);
+            Type resolvedSizeType = TypeConformance.resolveType(sizeType, symbolTable);
+
+            if (!(resolvedSizeType instanceof PrimitiveType primitiveType)
+                    || !primitiveType.typeName.equalsIgnoreCase("integer")) {
+                throw new SemanticException(
+                        "Array size must be an integer");
+            }
+
+            arrayType.resolvedSize = expressionAnalyzer.evaluateIntegerConstant(arrayType.size);
+
+            if (arrayType.resolvedSize == null || arrayType.resolvedSize < 0) {
+                throw new SemanticException(
+                        "Array size must be a non-negative constant");
+            }
+
+            validateLocalType(arrayType.elementType);
+            return;
+        }
+
+        if (resolved instanceof RecordType recordType) {
+            for (VariableDeclaration member : recordType.members) {
+                if (member.type != null) {
+                    validateLocalType(member.type);
+                }
             }
         }
     }
