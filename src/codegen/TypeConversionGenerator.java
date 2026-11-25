@@ -3,13 +3,31 @@ package codegen;
 import ast.expressions.Expression;
 import semantic.Conversion;
 
+/**
+ * Emits JVM instructions for conversions selected during semantic analysis.
+ * The generator updates the simulated operand stack together with each emitted
+ * conversion instruction.
+ */
 public class TypeConversionGenerator {
     private final CodegenContext context;
 
+    /**
+     * Creates a conversion generator for the given code generation context.
+     *
+     * @param context shared code generation state
+     */
     public TypeConversionGenerator(CodegenContext context) {
         this.context = context;
     }
 
+    /**
+     * Applies the conversion assigned to an expression, if any.
+     *
+     * @param expr expression whose {@link Expression#conversion} annotation
+     *             determines the conversion to emit; {@code null} is ignored
+     * @throws CodeGenException if emitting or tracking a required conversion
+     *         fails in the code generation context
+     */
     public void applyConversion(Expression expr) {
         if (expr == null || expr.conversion == null || expr.conversion == Conversion.NONE) {
             return;

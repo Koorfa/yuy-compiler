@@ -7,15 +7,32 @@ import lexer.TokenType;
 import semantic.Symbol;
 import semantic.SymbolCategory;
 
+/**
+ * Generates Jasmin instructions for Yuy expressions.
+ * It dispatches each expression node to the appropriate generator, tracks JVM
+ * operand-stack changes, and applies semantic conversions after evaluation.
+ */
 public class ExpressionGenerator {
     private final CodegenContext context;
     private final TypeConversionGenerator conversionGenerator;
 
+    /**
+     * Creates an expression generator for the given code generation context.
+     *
+     * @param context shared code generation state
+     */
     public ExpressionGenerator(CodegenContext context) {
         this.context = context;
         this.conversionGenerator = new TypeConversionGenerator(context);
     }
 
+    /**
+     * Generates Jasmin instructions that evaluate an expression.
+     *
+     * @param expr expression to generate; {@code null} is ignored
+     * @throws CodeGenException if the expression or a referenced symbol is unsupported
+     *         or has not been resolved
+     */
     public void generate(Expression expr) {
         if (expr == null) return;
 
