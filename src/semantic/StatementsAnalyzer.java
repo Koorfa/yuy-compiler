@@ -164,9 +164,15 @@ public class StatementsAnalyzer {
 
         if (loop.end != null) {
             Type endType = expressionAnalyzer.analyze(loop.end);
-            if (!TypeConformance.conformsToInteger(startType, symbolTable) ||
-                    !TypeConformance.conformsToInteger(endType, symbolTable)) {
-                throw new SemanticException("For range requires integer");
+
+            if (!TypeConformance.conformsToInteger(startType, symbolTable)) {
+                throw new SemanticException(
+                        "For range start requires integer, got " + describeType(startType));
+            }
+
+            if (!TypeConformance.conformsToInteger(endType, symbolTable)) {
+                throw new SemanticException(
+                        "For range end requires integer, got " + describeType(endType));
             }
         } else {
             if (!(startType instanceof ArrayType)) {
@@ -187,6 +193,20 @@ public class StatementsAnalyzer {
         currentScopeLevel -= 1;
         symbolTable.exitScope();
         loopDepth -= 1;
+    }
+
+    private String describeType(Type type) {
+        Type resolved = TypeConformance.resolveType(type, symbolTable);
+        if (resolved instanceof PrimitiveType primitiveType) {
+            return primitiveType.typeName;
+        }
+        if (resolved instanceof ArrayType) {
+            return "array";
+        }
+        if (resolved instanceof RecordType) {
+            return "record";
+        }
+        return resolved.getClass().getSimpleName();
     }
 
     private void checkPrint(PrintStatement stmt) {

@@ -12,6 +12,7 @@ import ast.expressions.*;
 import ast.types.*;
 import semantic.Symbol;
 import semantic.SymbolCategory;
+import semantic.TypeConformance;
 import ast.statements.Statement;
 import ast.statements.Assignment;
 import ast.statements.BreakStatement;
@@ -226,6 +227,16 @@ public final class StatementGenerator {
     }
 
     private void generateIntegerRangeFor(ForLoop loop) {
+        Type startType = TypeConformance.resolveType(loop.start.resolvedType, context.getSymbolTable());
+        Type endType = TypeConformance.resolveType(loop.end.resolvedType, context.getSymbolTable());
+
+        if (!TypeConformance.conformsToInteger(startType) ||
+                !TypeConformance.conformsToInteger(endType)) {
+            throw new CodeGenException(
+                    "For range requires integer bounds; got " + startType.getClass().getSimpleName() + " and "
+                            + endType.getClass().getSimpleName());
+        }
+
         Symbol loopSymbol = prep.symbolFor(loop);
 
         if (loopSymbol == null) {

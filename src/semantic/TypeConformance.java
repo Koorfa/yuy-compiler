@@ -203,7 +203,7 @@ public class TypeConformance {
     public static boolean conformsToInteger(Type type) {
         if (type instanceof PrimitiveType primitiveType) {
             String name = primitiveType.typeName.toLowerCase();
-            return name.equals("integer") || name.equals("real") || name.equals("boolean");
+            return name.equals("integer");
         }
         return false;
     }
