@@ -173,6 +173,15 @@ public class Lexer {
                 "Lexer error at line " + errorLine + ", column " + errorColumn + ": " + message);
     }
 
+    /**
+     * Creates a token at the current source location and consumes its remaining
+     * character. For two-character lexemes, the first character has already
+     * been consumed by the caller.
+     *
+     * @param type the token category
+     * @param lexeme the source text represented by the token
+     * @return the constructed token
+     */
     private Token makeToken(TokenType type, String lexeme) {
         int tokenLine = line;
         int tokenColumn = column;
@@ -186,6 +195,11 @@ public class Lexer {
         return token;
     }
 
+    /**
+     * Returns the character at the current position without consuming it.
+     *
+     * @return the current character, or {@code '\0'} at end of input
+     */
     private char peekChar() {
         if (isEOF()) {
             return '\0';
@@ -193,6 +207,12 @@ public class Lexer {
         return source.charAt(position);
     }
 
+    /**
+     * Returns the character immediately after the current position without
+     * consuming it.
+     *
+     * @return the next character, or {@code '\0'} when no next character exists
+     */
     private char peekNextChar() {
         if (position + 1 >= source.length()) {
             return '\0';
@@ -200,6 +220,12 @@ public class Lexer {
         return source.charAt(position + 1);
     }
 
+    /**
+     * Consumes and returns the current character, updating the source position
+     * and line and column counters.
+     *
+     * @return the consumed character, or {@code '\0'} at end of input
+     */
     private char takeForward() {
         char c = peekChar();
         position++;
@@ -212,6 +238,10 @@ public class Lexer {
         return c;
     }
 
+    /**
+     * Consumes whitespace and {@code #}-to-end-of-line comments at the current
+     * position.
+     */
     private void skipUnnecessary() {
         while (!isEOF()) {
             char c = peekChar();
@@ -227,6 +257,11 @@ public class Lexer {
         }
     }
 
+    /**
+     * Checks whether the lexer has consumed the entire source.
+     *
+     * @return {@code true} when no source characters remain
+     */
     private boolean isEOF() {
         return position >= source.length();
     }
