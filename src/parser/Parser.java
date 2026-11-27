@@ -271,6 +271,12 @@ public class Parser {
             );
         }
 
+    /**
+     * Parses declarations until the end-of-file token is reached.
+     *
+     * @return the program containing the parsed declarations
+     * @throws ParseException if the input contains an invalid declaration
+     */
     public Program parseProgram() {
         List<Declaration> declarations = new ArrayList<>();
         while (!check(TokenType.EOF)) {
@@ -280,6 +286,12 @@ public class Parser {
         return new Program(declarations);
     }
 
+    /**
+     * Parses one variable, type, or routine declaration.
+     *
+     * @return the parsed declaration
+     * @throws ParseException if the next token does not begin a declaration
+     */
     public Declaration parseDeclaration() {
         if (check(TokenType.VAR) || check(TokenType.TYPE)) {
             return parseSimpleDeclaration();
@@ -290,6 +302,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses a variable or type declaration.
+     *
+     * @return the parsed simple declaration
+     * @throws ParseException if the next token is neither {@code var} nor {@code type}
+     */
     public SimpleDeclaration parseSimpleDeclaration() {
         if (match(TokenType.VAR)) {
             return parseVariableDeclaration();
@@ -299,6 +317,13 @@ public class Parser {
         throw error("Expected 'var' or 'type'");
     }
 
+    /**
+     * Parses a variable declaration of the form {@code var name [: type] [is expression]}.
+     * At least a type or an initializer must be present.
+     *
+     * @return the parsed variable declaration
+     * @throws ParseException if the declaration is missing both a type and an initializer
+     */
     public VariableDeclaration parseVariableDeclaration() {
         String name = consume(TokenType.IDENTIFIER).getLexeme();
         Type type = null;
@@ -319,6 +344,12 @@ public class Parser {
         return new VariableDeclaration(name, type, initializer);
     }
 
+    /**
+     * Parses a named type declaration of the form {@code type name is type}.
+     *
+     * @return the parsed type declaration
+     * @throws ParseException if the declaration does not match the required syntax
+     */
     public TypeDeclaration parseTypeDeclaration() {
         String name = consume(TokenType.IDENTIFIER).getLexeme();
         consume(TokenType.IS);
@@ -326,6 +357,14 @@ public class Parser {
         return new TypeDeclaration(name, type);
     }
 
+    /**
+     * Parses a routine declaration, including its header and optional body.
+     * A body may be a block introduced by {@code is} or a single expression
+     * introduced by {@code ->}.
+     *
+     * @return the parsed routine declaration
+     * @throws ParseException if the routine declaration is malformed
+     */
     public RoutineDeclaration parseRoutineDeclaration() {
         consume(TokenType.ROUTINE);
         RoutineHeader header = parseRoutineHeader();
@@ -347,11 +386,24 @@ public class Parser {
                                     header.returnType, body);
     }
 
+    /**
+     * Holds the name, parameters, and optional result type parsed from a routine header.
+     */
     public static class RoutineHeader {
+        /** The routine's identifier. */
         public String name;
+        /** The routine's parameters, in declaration order. */
         public List<ParameterDeclaration> parameters;
+        /** The result type, or {@code null} when no result type is declared. */
         public Type returnType;
 
+        /**
+         * Creates a parsed routine header.
+         *
+         * @param name the routine's identifier
+         * @param parameters the routine's parameters
+         * @param returnType the result type, or {@code null} when absent
+         */
         public RoutineHeader(String name, List<ParameterDeclaration> parameters, Type returnType) {
             this.name = name;
             this.parameters = parameters;
@@ -359,6 +411,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses a routine header: its name, parameter list, and optional result type.
+     *
+     * @return the parsed header
+     * @throws ParseException if the header is malformed
+     */
     public RoutineHeader parseRoutineHeader() {
         String name = consume(TokenType.IDENTIFIER).getLexeme();
         consume(TokenType.LEFT_PAREN);
@@ -377,6 +435,12 @@ public class Parser {
         return parseBody();
     }
 
+    /**
+     * Parses a possibly empty, comma-separated list of routine parameters.
+     *
+     * @return the parsed parameters, in source order
+     * @throws ParseException if any parameter is malformed
+     */
     public List<ParameterDeclaration> parseParameters() {
         List<ParameterDeclaration> params = new ArrayList<>();
         if (!check(TokenType.RIGHT_PAREN)) {
@@ -388,6 +452,12 @@ public class Parser {
         return params;
     }
 
+    /**
+     * Parses one parameter declaration of the form {@code name: type}.
+     *
+     * @return the parsed parameter
+     * @throws ParseException if the parameter is malformed
+     */
     public ParameterDeclaration parseParameterDeclaration() {
         String name = consume(TokenType.IDENTIFIER).getLexeme();
         consume(TokenType.COLON);
@@ -411,6 +481,12 @@ public class Parser {
         return new Body(nodes);
     }
 
+    /**
+     * Parses a primitive, array, record, or identifier-based type.
+     *
+     * @return the parsed type
+     * @throws ParseException if the next token does not begin a type
+     */
     public Type parseType() {
         if (check(TokenType.INTEGER) || check(TokenType.REAL) || check(TokenType.BOOLEAN)) {
             return parsePrimitiveType();
@@ -424,12 +500,26 @@ public class Parser {
         throw error("Expected type (integer, real, boolean, array, record, or identifier)");
     }
 
+    /**
+     * Parses one of the built-in scalar types: {@code integer}, {@code real},
+     * or {@code boolean}.
+     *
+     * @return the parsed primitive type
+     * @throws ParseException if the next token is not a primitive type
+     */
     public PrimitiveType parsePrimitiveType() {
         String typeName = currentToken.getLexeme();
         consume(currentToken.getType());
         return new PrimitiveType(typeName);
     }
 
+    /**
+     * Parses an array type of the form {@code array [size] elementType};
+     * the bracketed size expression is optional.
+     *
+     * @return the parsed array type
+     * @throws ParseException if the array type is malformed
+     */
     public ArrayType parseArrayType() {
         consume(TokenType.ARRAY);
         Expression size = null;
@@ -443,6 +533,13 @@ public class Parser {
         return new ArrayType(size, elementType);
     }
 
+    /**
+     * Parses a record type containing {@code var} member declarations and
+     * terminated by {@code end}.
+     *
+     * @return the parsed record type
+     * @throws ParseException if a member or the terminating {@code end} is missing
+     */
     public RecordType parseRecordType() {
         consume(TokenType.RECORD);
         List<VariableDeclaration> members = new ArrayList<>();
@@ -457,6 +554,12 @@ public class Parser {
         return new RecordType(members);
     }
 
+    /**
+     * Parses an identifier used as a type name.
+     *
+     * @return the parsed identifier type
+     * @throws ParseException if the next token is not an identifier
+     */
     public IdentifierType parseIdentifierType() {
         String name = consume(TokenType.IDENTIFIER).getLexeme();
         return new IdentifierType(name);
